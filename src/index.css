@@ -1,0 +1,75 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #eef0f3;
+  color: #1a1f36;
+  font-size: 14px;
+}
+
+input,
+select,
+button,
+textarea {
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d3d7de;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Tabular, monospace numerals for amounts, dates, doc numbers */
+.num {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hover affordances (kept in CSS so inline styles stay static) */
+.card-hoverable {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.card-hoverable:hover {
+  border-color: #d3d7de;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.04);
+}
+
+.row-hoverable {
+  transition: background 0.12s ease;
+}
+.row-hoverable:hover {
+  background: #fafbfc;
+}
