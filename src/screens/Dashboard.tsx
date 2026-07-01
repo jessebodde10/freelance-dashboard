@@ -9,6 +9,16 @@ import type { Invoice } from '../types'
 import { Card, PrimaryButton } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { RevenueUpIcon } from '../components/icons'
+import { useIdentity } from '../hooks/useIdentity'
+
+// Time-of-day greeting in Dutch.
+function greeting(): string {
+  const h = new Date().getHours()
+  if (h < 6) return 'Goedenacht'
+  if (h < 12) return 'Goedemorgen'
+  if (h < 18) return 'Goedemiddag'
+  return 'Goedenavond'
+}
 
 // Sum of paid invoices per calendar month, for the last `count` months.
 function monthlyRevenue(invoices: Invoice[], count: number) {
@@ -557,6 +567,8 @@ export function Dashboard() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const navigate = useNavigate()
   const { dashVariant, setDashVariant, createDraftQuote } = useStore()
+  const { fullName } = useIdentity()
+  const firstName = fullName.split(' ')[0]
 
   if (isMobile) return <MobileDashboard />
 
@@ -597,7 +609,7 @@ export function Dashboard() {
       >
         <div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
-            Goedemorgen, Milan
+            {greeting()}{firstName ? `, ${firstName}` : ''}
           </h1>
           <p style={{ margin: '6px 0 0', color: colors.muted, fontSize: 14 }}>
             {todayLabel()} · hier is je overzicht
