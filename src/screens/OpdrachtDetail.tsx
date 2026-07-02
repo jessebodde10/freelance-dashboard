@@ -1,14 +1,13 @@
+import { useState } from 'react'
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { dutchNum, euro0, initials, subtotalOf } from '../format'
+import { shortDate } from '../data'
 import { accent, colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import type { TimeEntry } from '../types'
+import type { ProjectStatus } from '../types'
 import { BackLink, Card, PrimaryButton } from '../components/ui'
 import { Pill } from '../components/Pill'
-
-// Time entries are not yet a persisted feature — new projects start with none.
-const timeEntries: TimeEntry[] = []
 
 const sectionTitle = {
   margin: '0 0 14px',
@@ -19,20 +18,150 @@ const sectionTitle = {
   letterSpacing: '0.03em',
 } as const
 
+const statusOptions: { value: ProjectStatus; label: string }[] = [
+  { value: 'concept', label: 'Concept' },
+  { value: 'lopend', label: 'Lopend' },
+  { value: 'afgerond', label: 'Afgerond' },
+  { value: 'gefactureerd', label: 'Gefactureerd' },
+]
+
+const smallSelect = {
+  padding: '6px 9px',
+  border: '1px solid #d3d7de',
+  borderRadius: 8,
+  fontSize: 13,
+  color: colors.ink,
+  background: '#fff',
+} as const
+
+const entryInput = {
+  padding: '8px 10px',
+  border: '1px solid #d3d7de',
+  borderRadius: 8,
+  fontSize: 13,
+  color: colors.ink,
+  background: '#fff',
+  width: '100%',
+} as const
+
 export function OpdrachtDetail() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { projects, createDraftInvoice } = useStore()
+  const { projects, createDraftInvoice, setProjectStatus, addTimeEntry, removeTimeEntry } = useStore()
   const { clientById, quoteById } = useLookups()
+
+  const [adding, setAdding] = useState(false)
+  const [datum, setDatum] = useState(shortDate())
+  const [oms, setOms] = useState('')
+  const [uren, setUren] = useState('')
 
   const p = projects.find((x) => x.id === id)
   if (!p) return <Navigate to="/opdrachten" replace />
 
   const klant = clientById(p.klantId)!
   const offerte = quoteById(p.offerteId)
-  const urenPct = Math.min(100, Math.round((p.uren / p.raming) * 100))
+  const urenPct = p.raming > 0 ? Math.min(100, Math.round((p.uren / p.raming) * 100)) : 0
   const factureer = async () => navigate(`/facturen/${await createDraftInvoice()}`)
+
+  const resetForm = () => {
+    setDatum(shortDate())
+    setOms('')
+    setUren('')
+    setAdding(false)
+  }
+  const submitEntry = () => {
+    const hours = parseFloat(uren.replace(',', '.'))
+    if (!oms.trim() || !Number.isFinite(hours) || hours <= 0) return
+    addTimeEntry(p.id, { datum: datum.trim() || shortDate(), oms: oms.trim(), uren: hours })
+    resetForm()
+  }
+
+  const statusSelect = (
+    <select
+      value={p.status}
+      onChange={(e) => setProjectStatus(p.id, e.target.value as ProjectStatus)}
+      style={smallSelect}
+      aria-label="Status van de opdracht"
+    >
+      {statusOptions.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  )
+
+  const addForm = adding ? (
+    <div
+      style={{
+        marginTop: 12,
+        padding: 12,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 10,
+        background: colors.rowHover,
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 2.4fr 0.8fr',
+        gap: 8,
+      }}
+    >
+      <input value={datum} onChange={(e) => setDatum(e.target.value)} placeholder="Datum" style={entryInput} />
+      <input
+        value={oms}
+        onChange={(e) => setOms(e.target.value)}
+        placeholder="Omschrijving"
+        style={entryInput}
+        autoFocus
+        onKeyDown={(e) => e.key === 'Enter' && submitEntry()}
+      />
+      <input
+        value={uren}
+        onChange={(e) => setUren(e.target.value)}
+        placeholder="Uren"
+        inputMode="decimal"
+        style={entryInput}
+        onKeyDown={(e) => e.key === 'Enter' && submitEntry()}
+      />
+      <div style={{ display: 'flex', gap: 8, gridColumn: isMobile ? 'auto' : '1 / -1' }}>
+        <PrimaryButton onClick={submitEntry} style={{ padding: '8px 14px' }}>
+          Toevoegen
+        </PrimaryButton>
+        <button
+          onClick={resetForm}
+          style={{
+            border: '1px solid #d3d7de',
+            background: '#fff',
+            borderRadius: 8,
+            padding: '8px 14px',
+            fontSize: 13,
+            fontWeight: 500,
+            color: colors.text,
+            cursor: 'pointer',
+          }}
+        >
+          Annuleren
+        </button>
+      </div>
+    </div>
+  ) : (
+    <button
+      onClick={() => setAdding(true)}
+      style={{
+        marginTop: 12,
+        width: '100%',
+        padding: 9,
+        border: '1px dashed #d3d7de',
+        background: '#fafbfc',
+        borderRadius: 8,
+        color: colors.muted,
+        fontSize: 13,
+        cursor: 'pointer',
+        fontWeight: 500,
+      }}
+    >
+      + Uren toevoegen
+    </button>
+  )
 
   const urenCard = (
     <Card style={{ padding: isMobile ? 16 : 18 }}>
@@ -50,7 +179,7 @@ export function OpdrachtDetail() {
             {dutchNum(p.uren)} u
           </span>
           <span style={{ color: colors.subtle, fontSize: isMobile ? 12 : 13 }}>
-            {' '}/ {p.raming} u{isMobile ? '' : ' geraamd'}
+            {' '}/ {dutchNum(p.raming)} u{isMobile ? '' : ' geraamd'}
           </span>
         </div>
       </div>
@@ -65,64 +194,56 @@ export function OpdrachtDetail() {
       >
         <div style={{ height: '100%', width: `${urenPct}%`, background: accent.solid, borderRadius: 99 }} />
       </div>
-      {timeEntries.length === 0 && (
+      {p.entries.length === 0 && (
         <div style={{ color: colors.subtle, fontSize: 13, padding: '4px 0 2px' }}>
           Nog geen uren geregistreerd.
         </div>
       )}
-      {timeEntries.map((e, idx) =>
-        isMobile ? (
-          <div
-            key={idx}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 10,
-              padding: '8px 0',
-              borderTop: `1px solid #f4f5f7`,
-              fontSize: 13,
-            }}
-          >
-            <span style={{ flex: 1 }}>{e.oms}</span>
-            <span className="num" style={{ color: colors.subtle }}>{e.datum}</span>
-            <span className="num" style={{ fontWeight: 500, width: 36, textAlign: 'right' }}>{e.uren}</span>
-          </div>
-        ) : (
-          <div
-            key={idx}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 3fr 0.7fr',
-              alignItems: 'center',
-              padding: '9px 0',
-              borderTop: '1px solid #f4f5f7',
-              fontSize: 13.5,
-            }}
-          >
-            <span className="num" style={{ color: colors.subtle }}>{e.datum}</span>
-            <span>{e.oms}</span>
-            <span className="num" style={{ textAlign: 'right', fontWeight: 500 }}>{e.uren}</span>
-          </div>
-        ),
-      )}
-      {!isMobile && (
-        <button
+      {p.entries.map((e) => (
+        <div
+          key={e.id}
+          className="row-hoverable"
           style={{
-            marginTop: 12,
-            width: '100%',
-            padding: 9,
-            border: '1px dashed #d3d7de',
-            background: '#fafbfc',
-            borderRadius: 8,
-            color: colors.muted,
-            fontSize: 13,
-            cursor: 'pointer',
-            fontWeight: 500,
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr auto auto' : '1fr 3fr 0.7fr auto',
+            alignItems: 'center',
+            gap: 10,
+            padding: isMobile ? '8px 0' : '9px 0',
+            borderTop: '1px solid #f4f5f7',
+            fontSize: isMobile ? 13 : 13.5,
           }}
         >
-          + Uren toevoegen
-        </button>
-      )}
+          {isMobile ? (
+            <>
+              <span style={{ flex: 1 }}>{e.oms}</span>
+              <span className="num" style={{ color: colors.subtle }}>{e.datum}</span>
+            </>
+          ) : (
+            <>
+              <span className="num" style={{ color: colors.subtle }}>{e.datum}</span>
+              <span>{e.oms}</span>
+            </>
+          )}
+          <span className="num" style={{ textAlign: 'right', fontWeight: 500 }}>{dutchNum(e.uren)}</span>
+          <button
+            onClick={() => removeTimeEntry(p.id, e.id)}
+            aria-label="Regel verwijderen"
+            title="Verwijderen"
+            style={{
+              border: 'none',
+              background: 'none',
+              color: colors.faint,
+              cursor: 'pointer',
+              fontSize: 16,
+              lineHeight: 1,
+              padding: '0 2px',
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      {addForm}
     </Card>
   )
 
@@ -147,8 +268,11 @@ export function OpdrachtDetail() {
     return (
       <>
         <BackLink label="Terug" onClick={() => navigate('/opdrachten')} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <h1 style={{ margin: 0, fontSize: 19, fontWeight: 600 }}>{p.naam}</h1>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <Pill status={p.status} />
+          {statusSelect}
           <span style={{ fontSize: 13, color: colors.muted }}>voor {klant.bedrijf}</span>
         </div>
         <div style={{ marginBottom: 12 }}>{urenCard}</div>
@@ -171,6 +295,11 @@ export function OpdrachtDetail() {
             <span className="num" style={{ fontWeight: 500 }}>{euro0(p.tarief)} /uur</span>
           </div>
         </Card>
+        <div style={{ marginBottom: 12 }}>
+          <PrimaryButton onClick={factureer} style={{ width: '100%', justifyContent: 'center' }}>
+            Factureren
+          </PrimaryButton>
+        </div>
         {offerteCard}
       </>
     )
@@ -191,7 +320,7 @@ export function OpdrachtDetail() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <h1 style={{ margin: 0, fontSize: 23, fontWeight: 600, letterSpacing: '-0.02em' }}>{p.naam}</h1>
-            <Pill status={p.status} />
+            {statusSelect}
           </div>
           <p style={{ margin: '7px 0 0', color: colors.muted, fontSize: 14 }}>voor {klant.bedrijf}</p>
         </div>

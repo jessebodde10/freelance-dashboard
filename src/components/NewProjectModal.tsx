@@ -39,6 +39,7 @@ export function NewProjectModal({
         raming: parseFloat(raming) || 0,
         tarief: parseFloat(tarief) || 0,
         offerteId: '',
+        entries: [],
       })
       onCreated?.(created)
       onClose()

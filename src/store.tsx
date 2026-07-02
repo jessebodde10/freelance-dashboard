@@ -18,8 +18,10 @@ import type {
   InvoiceStatus,
   LineItem,
   Project,
+  ProjectStatus,
   Quote,
   QuoteStatus,
+  TimeEntry,
   VatRate,
 } from './types'
 
@@ -50,6 +52,9 @@ interface Store {
 
   addClient: (c: Omit<Client, 'id'>) => Promise<Client>
   addProject: (p: Omit<Project, 'id'>) => Promise<Project>
+  setProjectStatus: (id: string, status: ProjectStatus) => void
+  addTimeEntry: (projectId: string, entry: Omit<TimeEntry, 'id'>) => void
+  removeTimeEntry: (projectId: string, entryId: number) => void
 
   addLine: (kind: DocKind, docId: string) => void
   updateLine: (
@@ -110,8 +115,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Keep synchronous mirrors so mutations can compute the row to persist.
   const quotesRef = useRef<Quote[]>([])
   const invoicesRef = useRef<Invoice[]>([])
+  const projectsRef = useRef<Project[]>([])
   quotesRef.current = quotes
   invoicesRef.current = invoices
+  projectsRef.current = projects
 
   // Load (or clear) the user's data whenever the signed-in user changes.
   useEffect(() => {
@@ -252,6 +259,43 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [userId],
   )
 
+  // Projects mutate rarely (status, hours), so persist immediately.
+  const editProject = useCallback((id: string, updater: (p: Project) => Project) => {
+    const current = projectsRef.current.find((p) => p.id === id)
+    if (!current) return
+    const updated = updater(current)
+    setProjects((ps) => ps.map((p) => (p.id === id ? updated : p)))
+    db.saveProject(updated).catch((e) =>
+      setError(e instanceof Error ? e.message : 'Opslaan mislukt'),
+    )
+  }, [])
+
+  const setProjectStatus = useCallback(
+    (id: string, status: ProjectStatus) => editProject(id, (p) => ({ ...p, status })),
+    [editProject],
+  )
+
+  const addTimeEntry = useCallback(
+    (projectId: string, entry: Omit<TimeEntry, 'id'>) =>
+      editProject(projectId, (p) => {
+        const entries = [
+          ...p.entries,
+          { ...entry, id: Date.now() + Math.floor(Math.random() * 1000) },
+        ]
+        return { ...p, entries, uren: entries.reduce((s, e) => s + e.uren, 0) }
+      }),
+    [editProject],
+  )
+
+  const removeTimeEntry = useCallback(
+    (projectId: string, entryId: number) =>
+      editProject(projectId, (p) => {
+        const entries = p.entries.filter((e) => e.id !== entryId)
+        return { ...p, entries, uren: entries.reduce((s, e) => s + e.uren, 0) }
+      }),
+    [editProject],
+  )
+
   const createDraftQuote = useCallback(async () => {
     if (!userId) throw new Error('Niet ingelogd')
     const draft: Omit<Quote, 'id'> = {
@@ -303,6 +347,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getInvoice: (id) => invoices.find((i) => i.id === id),
       addClient,
       addProject,
+      setProjectStatus,
+      addTimeEntry,
+      removeTimeEntry,
       addLine,
       updateLine,
       removeLine,
@@ -327,6 +374,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       invoiceFilter,
       addClient,
       addProject,
+      setProjectStatus,
+      addTimeEntry,
+      removeTimeEntry,
       addLine,
       updateLine,
       removeLine,

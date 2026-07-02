@@ -9,6 +9,7 @@ import type {
   Quote,
   QuoteStatus,
   InvoiceStatus,
+  TimeEntry,
 } from '../types'
 
 // ---- row shapes (snake_case, as stored in Postgres) ----
@@ -29,6 +30,7 @@ interface ProjectRow {
   raming: number
   tarief: number
   offerte_id: string | null
+  time_entries: TimeEntry[] | null
 }
 interface QuoteRow {
   id: string
@@ -68,6 +70,7 @@ const toProject = (r: ProjectRow): Project => ({
   raming: Number(r.raming),
   tarief: Number(r.tarief),
   offerteId: r.offerte_id ?? '',
+  entries: r.time_entries ?? [],
 })
 const toQuote = (r: QuoteRow): Quote => ({
   id: r.id,
@@ -168,11 +171,30 @@ export async function insertProject(
       raming: p.raming,
       tarief: p.tarief,
       offerte_id: p.offerteId || null,
+      time_entries: p.entries ?? [],
     })
     .select('*')
     .single()
   if (error) throw error
   return toProject(data as ProjectRow)
+}
+
+export async function saveProject(p: Project): Promise<void> {
+  const { error } = await requireSupabase()
+    .from('projects')
+    .update({
+      naam: p.naam,
+      klant_id: p.klantId || null,
+      status: p.status,
+      deadline: p.deadline,
+      uren: p.uren,
+      raming: p.raming,
+      tarief: p.tarief,
+      offerte_id: p.offerteId || null,
+      time_entries: p.entries,
+    })
+    .eq('id', p.id)
+  if (error) throw error
 }
 
 export async function insertQuote(

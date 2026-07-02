@@ -36,6 +36,13 @@ export interface Client {
   plaats: string
 }
 
+export interface TimeEntry {
+  id: number
+  datum: string
+  oms: string
+  uren: number
+}
+
 export interface Project {
   id: string
   naam: string
@@ -46,6 +53,7 @@ export interface Project {
   raming: number
   tarief: number
   offerteId: string
+  entries: TimeEntry[]
 }
 
 export interface LineItem {
@@ -75,12 +83,6 @@ export interface Invoice {
   verval: string
   datum: string
   lines: LineItem[]
-}
-
-export interface TimeEntry {
-  datum: string
-  oms: string
-  uren: string
 }
 
 export interface ChartPoint {

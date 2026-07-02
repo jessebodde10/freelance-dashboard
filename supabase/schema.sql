@@ -38,12 +38,17 @@ create table if not exists public.projects (
   klant_id   uuid references public.clients (id) on delete set null,
   status     text not null default 'concept',
   deadline   text,
-  uren       numeric not null default 0,
-  raming     numeric not null default 0,
-  tarief     numeric not null default 0,
-  offerte_id uuid,
-  created_at timestamptz not null default now()
+  uren        numeric not null default 0,
+  raming      numeric not null default 0,
+  tarief      numeric not null default 0,
+  offerte_id  uuid,
+  time_entries jsonb not null default '[]'::jsonb,
+  created_at  timestamptz not null default now()
 );
+
+-- For databases created before time tracking existed:
+alter table public.projects
+  add column if not exists time_entries jsonb not null default '[]'::jsonb;
 
 -- -------------------------------------------------------------------- quotes
 create table if not exists public.quotes (
