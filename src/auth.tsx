@@ -9,7 +9,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js'
 import { Navigate, useLocation } from 'react-router-dom'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
-import { fetchProfile } from './lib/db'
+import { fetchProfile, updateProfile } from './lib/db'
 import type { Profile, ProfileInput } from './types'
 
 interface AuthState {
@@ -23,6 +23,7 @@ interface AuthState {
   ) => Promise<{ needsConfirmation: boolean }>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  updateProfile: (input: ProfileInput) => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -88,6 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signOut() {
         if (!supabase) return
         await supabase.auth.signOut()
+      },
+      async updateProfile(input) {
+        const uid = session?.user.id
+        if (!supabase || !uid) throw new Error('Niet ingelogd')
+        await updateProfile(uid, input)
+        setProfile((p) => (p ? { ...p, ...input } : p))
       },
     }),
     [ready, session, profile],

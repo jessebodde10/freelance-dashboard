@@ -8,6 +8,7 @@ import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { LoadingSkeleton, ThemeToggle } from './ui'
 import { CommandPalette, openCommandPalette } from './CommandPalette'
+import { ProfileModal } from './ProfileModal'
 
 function ContentGate({ children }: { children: ReactNode }) {
   const { loading, error } = useStore()
@@ -44,6 +45,7 @@ function MobileLayout() {
   const title = useMobileTitle()
   const identity = useIdentity()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
   return (
     <div
       style={{
@@ -119,8 +121,13 @@ function MobileLayout() {
             </svg>
           </button>
           <ThemeToggle />
-          <div
+          <button
+            onClick={() => setShowProfile(true)}
+            aria-label="Profiel bewerken"
             style={{
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
               width: 30,
               height: 30,
               borderRadius: '50%',
@@ -134,7 +141,7 @@ function MobileLayout() {
             }}
           >
             {identity.initials}
-          </div>
+          </button>
         </div>
       </header>
 
@@ -147,6 +154,7 @@ function MobileLayout() {
       </main>
 
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { accent, colors } from '../theme'
 import { useAuth } from '../auth'
@@ -6,6 +6,7 @@ import { useIdentity } from '../hooks/useIdentity'
 import { useStore } from '../store'
 import { ThemeToggle } from './ui'
 import { openCommandPalette } from './CommandPalette'
+import { ProfileModal } from './ProfileModal'
 import {
   BrandMark,
   DashboardIcon,
@@ -65,6 +66,7 @@ export function Sidebar() {
   const { createDraftQuote, createDraftInvoice } = useStore()
   const { signOut } = useAuth()
   const identity = useIdentity()
+  const [showProfile, setShowProfile] = useState(false)
 
   return (
     <aside
@@ -174,29 +176,49 @@ export function Sidebar() {
           borderTop: `1px solid ${colors.borderSoft}`,
         }}
       >
-        <div
+        <button
+          onClick={() => setShowProfile(true)}
+          title="Profiel bewerken"
+          className="row-hoverable"
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: '#e9eafe',
-            color: '#4338ca',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            fontSize: 12.5,
-            flex: 'none',
+            gap: 10,
+            flex: 1,
+            minWidth: 0,
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '4px 6px',
+            margin: '-4px -6px',
+            borderRadius: 8,
+            textAlign: 'left',
           }}
         >
-          {identity.initials}
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 13.5, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {identity.displayName}
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              background: '#e9eafe',
+              color: '#4338ca',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 600,
+              fontSize: 12.5,
+              flex: 'none',
+            }}
+          >
+            {identity.initials}
           </div>
-          <div style={{ fontSize: 12, color: colors.subtle, lineHeight: 1.3 }}>{identity.displaySub}</div>
-        </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: 13.5, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: colors.ink }}>
+              {identity.displayName}
+            </div>
+            <div style={{ fontSize: 12, color: colors.subtle, lineHeight: 1.3 }}>{identity.displaySub}</div>
+          </div>
+        </button>
         <ThemeToggle />
         <button
           onClick={() => signOut()}
@@ -211,6 +233,8 @@ export function Sidebar() {
           </svg>
         </button>
       </div>
+
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </aside>
   )
 }

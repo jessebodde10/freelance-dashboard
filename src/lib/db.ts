@@ -4,6 +4,7 @@ import type {
   Invoice,
   LineItem,
   Profile,
+  ProfileInput,
   Project,
   ProjectStatus,
   Quote,
@@ -114,6 +115,24 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
     kvk: data.kvk ?? '',
     btw: data.btw ?? '',
   }
+}
+
+export async function updateProfile(userId: string, input: ProfileInput): Promise<void> {
+  const { error } = await requireSupabase()
+    .from('profiles')
+    .update({
+      voornaam: input.voornaam,
+      achternaam: input.achternaam,
+      bedrijf: input.bedrijf,
+      adres: input.adres,
+      postcode: input.postcode,
+      plaats: input.plaats,
+      iban: input.iban,
+      kvk: input.kvk,
+      btw: input.btw,
+    })
+    .eq('id', userId)
+  if (error) throw error
 }
 
 // ---- bulk load for the signed-in user ----
