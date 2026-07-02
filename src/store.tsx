@@ -12,7 +12,16 @@ import { useAuth } from './auth'
 import { datePlusDays, shortDate } from './data'
 import * as db from './lib/db'
 import { debounce, type Debounced } from './lib/debounce'
-import type { Client, Invoice, LineItem, Project, Quote, VatRate } from './types'
+import type {
+  Client,
+  Invoice,
+  InvoiceStatus,
+  LineItem,
+  Project,
+  Quote,
+  QuoteStatus,
+  VatRate,
+} from './types'
 
 export type DashVariant = 'a' | 'b'
 type DocKind = 'quote' | 'invoice'
@@ -54,6 +63,8 @@ interface Store {
   setDocClient: (kind: DocKind, docId: string, klantId: string) => void
   setQuoteGeldigTot: (docId: string, value: string) => void
   setInvoiceVerval: (docId: string, value: string) => void
+  setQuoteStatus: (docId: string, status: QuoteStatus) => void
+  setInvoiceStatus: (docId: string, status: InvoiceStatus) => void
 
   createDraftQuote: () => Promise<string>
   createDraftInvoice: () => Promise<string>
@@ -212,6 +223,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (docId: string, value: string) => editInvoice(docId, (i) => ({ ...i, verval: value })),
     [editInvoice],
   )
+  const setQuoteStatus = useCallback(
+    (docId: string, status: QuoteStatus) => editQuote(docId, (q) => ({ ...q, status })),
+    [editQuote],
+  )
+  const setInvoiceStatus = useCallback(
+    (docId: string, status: InvoiceStatus) => editInvoice(docId, (i) => ({ ...i, status })),
+    [editInvoice],
+  )
 
   const addClient = useCallback(
     async (c: Omit<Client, 'id'>) => {
@@ -290,6 +309,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setDocClient,
       setQuoteGeldigTot,
       setInvoiceVerval,
+      setQuoteStatus,
+      setInvoiceStatus,
       createDraftQuote,
       createDraftInvoice,
     }),
@@ -312,6 +333,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setDocClient,
       setQuoteGeldigTot,
       setInvoiceVerval,
+      setQuoteStatus,
+      setInvoiceStatus,
       createDraftQuote,
       createDraftInvoice,
     ],

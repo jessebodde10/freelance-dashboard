@@ -48,6 +48,7 @@ export function DocumentPreview({
       </div>
 
       <div
+        className="doc-preview"
         style={{
           background: '#fff',
           border: `1px solid ${colors.border}`,

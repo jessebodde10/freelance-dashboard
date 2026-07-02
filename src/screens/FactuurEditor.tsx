@@ -24,7 +24,7 @@ export function FactuurEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getInvoice, clients, setDocClient, setInvoiceVerval } = useStore()
+  const { getInvoice, clients, setDocClient, setInvoiceVerval, setInvoiceStatus } = useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
 
@@ -35,7 +35,14 @@ export function FactuurEditor() {
 
   const form = (
     <Card style={{ padding: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 22 }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+          gap: 14,
+          marginBottom: 22,
+        }}
+      >
         <label style={{ display: 'block' }}>
           <span style={fieldLabel}>Klant</span>
           <select
@@ -49,6 +56,18 @@ export function FactuurEditor() {
                 {c.bedrijf}
               </option>
             ))}
+          </select>
+        </label>
+        <label style={{ display: 'block' }}>
+          <span style={fieldLabel}>Status</span>
+          <select
+            value={invoice.status}
+            onChange={(e) => setInvoiceStatus(invoice.id, e.target.value as typeof invoice.status)}
+            style={fieldInput}
+          >
+            <option value="open">Open</option>
+            <option value="betaald">Betaald</option>
+            <option value="te laat">Te laat</option>
           </select>
         </label>
         <label style={{ display: 'block' }}>
@@ -104,11 +123,19 @@ export function FactuurEditor() {
           <Pill status={invoice.status} />
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <SecondaryButton>
+          <SecondaryButton onClick={() => window.print()}>
             <DownloadIcon />
             PDF-export
           </SecondaryButton>
-          <PrimaryButton>Versturen</PrimaryButton>
+          {invoice.status === 'betaald' ? (
+            <SecondaryButton onClick={() => setInvoiceStatus(invoice.id, 'open')}>
+              Markeer als open
+            </SecondaryButton>
+          ) : (
+            <PrimaryButton onClick={() => setInvoiceStatus(invoice.id, 'betaald')}>
+              Markeer als betaald
+            </PrimaryButton>
+          )}
         </div>
       </div>
 

@@ -86,3 +86,25 @@ a:focus-visible,
 .row-hoverable:hover {
   background: #fafbfc;
 }
+
+/* PDF-export: print only the live document preview, full page. */
+@media print {
+  body {
+    background: #fff;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .doc-preview,
+  .doc-preview * {
+    visibility: visible;
+  }
+  .doc-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

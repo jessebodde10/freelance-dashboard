@@ -7,6 +7,7 @@ import { BackLink, Card, PrimaryButton, SecondaryButton } from '../components/ui
 import { Pill } from '../components/Pill'
 import { LineItemsEditor } from '../components/LineItemsEditor'
 import { DocumentPreview } from '../components/DocumentPreview'
+import { DownloadIcon } from '../components/icons'
 
 const fieldLabel = { fontSize: 12.5, color: colors.muted, display: 'block', marginBottom: 5 } as const
 const fieldInput = {
@@ -23,7 +24,7 @@ export function OfferteEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getQuote, clients, setDocClient, setQuoteGeldigTot } = useStore()
+  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus } = useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
 
@@ -34,7 +35,14 @@ export function OfferteEditor() {
 
   const form = (
     <Card style={{ padding: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 22 }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+          gap: 14,
+          marginBottom: 22,
+        }}
+      >
         <label style={{ display: 'block' }}>
           <span style={fieldLabel}>Klant</span>
           <select
@@ -48,6 +56,20 @@ export function OfferteEditor() {
                 {c.bedrijf}
               </option>
             ))}
+          </select>
+        </label>
+        <label style={{ display: 'block' }}>
+          <span style={fieldLabel}>Status</span>
+          <select
+            value={quote.status}
+            onChange={(e) => setQuoteStatus(quote.id, e.target.value as typeof quote.status)}
+            style={fieldInput}
+          >
+            <option value="concept">Concept</option>
+            <option value="verstuurd">Verstuurd</option>
+            <option value="geaccepteerd">Geaccepteerd</option>
+            <option value="geweigerd">Geweigerd</option>
+            <option value="verlopen">Verlopen</option>
           </select>
         </label>
         <label style={{ display: 'block' }}>
@@ -104,8 +126,18 @@ export function OfferteEditor() {
           <Pill status={quote.status} />
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <SecondaryButton>Opslaan als concept</SecondaryButton>
-          <PrimaryButton>Versturen</PrimaryButton>
+          <SecondaryButton onClick={() => window.print()}>
+            <DownloadIcon />
+            PDF-export
+          </SecondaryButton>
+          {quote.status === 'concept' && (
+            <PrimaryButton onClick={() => setQuoteStatus(quote.id, 'verstuurd')}>Versturen</PrimaryButton>
+          )}
+          {quote.status === 'verstuurd' && (
+            <PrimaryButton onClick={() => setQuoteStatus(quote.id, 'geaccepteerd')}>
+              Markeer als geaccepteerd
+            </PrimaryButton>
+          )}
         </div>
       </div>
 
