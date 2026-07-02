@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { colors } from '../theme'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -42,6 +42,7 @@ function useMobileTitle(): string {
 function MobileLayout() {
   const title = useMobileTitle()
   const identity = useIdentity()
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div
       style={{
@@ -61,9 +62,43 @@ function MobileLayout() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: 12,
         }}
       >
-        <span style={{ fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' }}>{title}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Menu openen"
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                style={{ width: 20, height: 2, borderRadius: 2, background: colors.ink }}
+              />
+            ))}
+          </button>
+          <span
+            style={{
+              fontWeight: 600,
+              fontSize: 19,
+              letterSpacing: '-0.01em',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {title}
+          </span>
+        </div>
         <div
           style={{
             width: 30,
@@ -88,7 +123,7 @@ function MobileLayout() {
         </ContentGate>
       </main>
 
-      <MobileNav />
+      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   )
 }
