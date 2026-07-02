@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { euro0, subtotalOf } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { Card, FilterChips, PageHeader, PrimaryButton } from '../components/ui'
+import { Card, FilterChips, PageHeader, PrimaryButton, SearchField } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { EmptyState } from '../components/EmptyState'
 
@@ -23,7 +24,9 @@ export function OffertesList() {
   const navigate = useNavigate()
   const { quotes, quoteFilter, setQuoteFilter, createDraftQuote } = useStore()
   const { clientName } = useLookups()
+  const [search, setSearch] = useState('')
 
+  const term = search.trim().toLowerCase()
   const rows = quotes
     .filter((q) => quoteFilter === 'alle' || q.status === quoteFilter)
     .map((q) => ({
@@ -34,6 +37,15 @@ export function OffertesList() {
       status: q.status,
       bedrag: euro0(subtotalOf(q.lines)),
     }))
+    .filter(
+      (r) =>
+        !term ||
+        r.nr.toLowerCase().includes(term) ||
+        r.klant.toLowerCase().includes(term) ||
+        r.project.toLowerCase().includes(term),
+    )
+
+  const emptyMsg = term ? `Geen offertes gevonden voor “${search}”.` : 'Geen offertes met deze status.'
 
   const newBtn = (
     <PrimaryButton onClick={async () => navigate(`/offertes/${await createDraftQuote()}`)}>
@@ -58,6 +70,7 @@ export function OffertesList() {
     <>
       <PageHeader title="Offertes" actions={newBtn} />
       <FilterChips options={filterOptions} value={quoteFilter} onChange={setQuoteFilter} />
+      <SearchField value={search} onChange={setSearch} placeholder="Zoek op nummer, klant of onderwerp" />
     </>
   )
 
@@ -82,9 +95,7 @@ export function OffertesList() {
             </Card>
           ))}
           {rows.length === 0 && (
-            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>
-              Geen offertes met deze status.
-            </div>
+            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>{emptyMsg}</div>
           )}
         </div>
       </>
@@ -138,7 +149,7 @@ export function OffertesList() {
         ))}
         {rows.length === 0 && (
           <div style={{ color: colors.subtle, fontSize: 13, padding: '16px 18px', borderTop: `1px solid ${colors.borderSoft}` }}>
-            Geen offertes met deze status.
+            {emptyMsg}
           </div>
         )}
       </Card>

@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { euro, totalOf } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { Card, FilterChips, PageHeader, PrimaryButton } from '../components/ui'
+import { Card, FilterChips, PageHeader, PrimaryButton, SearchField } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { EmptyState } from '../components/EmptyState'
 
@@ -21,7 +22,9 @@ export function FacturenList() {
   const navigate = useNavigate()
   const { invoices, invoiceFilter, setInvoiceFilter, createDraftInvoice } = useStore()
   const { clientName } = useLookups()
+  const [search, setSearch] = useState('')
 
+  const term = search.trim().toLowerCase()
   const rows = invoices
     .filter((i) => invoiceFilter === 'alle' || i.status === invoiceFilter)
     .map((i) => ({
@@ -33,6 +36,9 @@ export function FacturenList() {
       vervalColor: i.status === 'te laat' ? colors.negative : colors.text,
       bedrag: euro(totalOf(i.lines)),
     }))
+    .filter((r) => !term || r.nr.toLowerCase().includes(term) || r.klant.toLowerCase().includes(term))
+
+  const emptyMsg = term ? `Geen facturen gevonden voor “${search}”.` : 'Geen facturen met deze status.'
 
   const newBtn = (
     <PrimaryButton onClick={async () => navigate(`/facturen/${await createDraftInvoice()}`)}>
@@ -57,6 +63,7 @@ export function FacturenList() {
     <>
       <PageHeader title="Facturen" actions={newBtn} />
       <FilterChips options={filterOptions} value={invoiceFilter} onChange={setInvoiceFilter} />
+      <SearchField value={search} onChange={setSearch} placeholder="Zoek op nummer of klant" />
     </>
   )
 
@@ -83,9 +90,7 @@ export function FacturenList() {
             </Card>
           ))}
           {rows.length === 0 && (
-            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>
-              Geen facturen met deze status.
-            </div>
+            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>{emptyMsg}</div>
           )}
         </div>
       </>
@@ -139,7 +144,7 @@ export function FacturenList() {
         ))}
         {rows.length === 0 && (
           <div style={{ color: colors.subtle, fontSize: 13, padding: '16px 18px', borderTop: `1px solid ${colors.borderSoft}` }}>
-            Geen facturen met deze status.
+            {emptyMsg}
           </div>
         )}
       </Card>

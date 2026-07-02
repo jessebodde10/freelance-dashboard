@@ -4,7 +4,7 @@ import { euro0, initials, totalOf } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { Card, PageHeader, PrimaryButton } from '../components/ui'
+import { Card, PageHeader, PrimaryButton, SearchField } from '../components/ui'
 import { EmptyState } from '../components/EmptyState'
 import { NewClientModal } from '../components/NewClientModal'
 
@@ -14,8 +14,12 @@ export function KlantenList() {
   const { clients } = useStore()
   const { invoicesOf, projectsOf } = useLookups()
   const [showNew, setShowNew] = useState(false)
+  const [search, setSearch] = useState('')
 
-  const rows = clients.map((c) => {
+  const q = search.trim().toLowerCase()
+  const rows = clients
+    .filter((c) => !q || [c.bedrijf, c.contact, c.email, c.plaats].some((f) => f?.toLowerCase().includes(q)))
+    .map((c) => {
     const open = invoicesOf(c.id)
       .filter((i) => i.status !== 'betaald')
       .reduce((s, i) => s + totalOf(i.lines), 0)
@@ -69,6 +73,12 @@ export function KlantenList() {
     return (
       <>
         {header}
+        <SearchField value={search} onChange={setSearch} placeholder="Zoek op bedrijf of contact" />
+        {rows.length === 0 && (
+          <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>
+            Geen klanten gevonden voor “{search}”.
+          </div>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
           {rows.map((c) => (
             <Card key={c.id} hoverable style={{ padding: 14 }} onClick={() => navigate(`/klanten/${c.id}`)}>
@@ -124,6 +134,12 @@ export function KlantenList() {
   return (
     <>
       {header}
+      <SearchField value={search} onChange={setSearch} placeholder="Zoek op bedrijf, contact of plaats" />
+      {rows.length === 0 && (
+        <div style={{ color: colors.subtle, fontSize: 13, padding: '4px 2px' }}>
+          Geen klanten gevonden voor “{search}”.
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
         {rows.map((c) => (
           <Card key={c.id} hoverable style={{ padding: 18 }} onClick={() => navigate(`/klanten/${c.id}`)}>

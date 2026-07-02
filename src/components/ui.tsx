@@ -128,6 +128,48 @@ export function BackLink({ label, onClick }: { label: string; onClick: () => voi
   )
 }
 
+export function SearchField({
+  value,
+  onChange,
+  placeholder = 'Zoeken…',
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
+  return (
+    <div style={{ position: 'relative', width: '100%', maxWidth: 340, marginBottom: 16 }}>
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke={colors.subtle}
+        strokeWidth="1.6"
+        style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+      >
+        <circle cx="7" cy="7" r="5" />
+        <path d="M11 11l3.5 3.5" strokeLinecap="round" />
+      </svg>
+      <input
+        type="search"
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '8px 12px 8px 34px',
+          border: '1px solid #d3d7de',
+          borderRadius: 8,
+          fontSize: 13.5,
+          color: colors.ink,
+          background: '#fff',
+        }}
+      />
+    </div>
+  )
+}
+
 export interface FilterOption {
   key: string
   label: string

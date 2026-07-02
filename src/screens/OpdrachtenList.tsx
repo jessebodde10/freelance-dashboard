@@ -4,7 +4,7 @@ import { dutchNum } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { Card, FilterChips, PageHeader, PrimaryButton } from '../components/ui'
+import { Card, FilterChips, PageHeader, PrimaryButton, SearchField } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { EmptyState } from '../components/EmptyState'
 import { NewProjectModal } from '../components/NewProjectModal'
@@ -25,7 +25,9 @@ export function OpdrachtenList() {
   const { projects, projectFilter, setProjectFilter } = useStore()
   const { clientName } = useLookups()
   const [showNew, setShowNew] = useState(false)
+  const [search, setSearch] = useState('')
 
+  const q = search.trim().toLowerCase()
   const rows = projects
     .filter((p) => projectFilter === 'alle' || p.status === projectFilter)
     .map((p) => ({
@@ -36,6 +38,9 @@ export function OpdrachtenList() {
       deadline: `${p.deadline} 2026`,
       uren: `${dutchNum(p.uren)} u`,
     }))
+    .filter((r) => !q || r.naam.toLowerCase().includes(q) || r.klant.toLowerCase().includes(q))
+
+  const emptyMsg = q ? `Geen opdrachten gevonden voor “${search}”.` : 'Geen opdrachten met deze status.'
 
   const modal = showNew && (
     <NewProjectModal onClose={() => setShowNew(false)} onCreated={(p) => navigate(`/opdrachten/${p.id}`)} />
@@ -77,6 +82,7 @@ export function OpdrachtenList() {
         }
       />
       <FilterChips options={filterOptions} value={projectFilter} onChange={setProjectFilter} />
+      <SearchField value={search} onChange={setSearch} placeholder="Zoek op opdracht of klant" />
     </>
   )
 
@@ -98,9 +104,7 @@ export function OpdrachtenList() {
             </Card>
           ))}
           {rows.length === 0 && (
-            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>
-              Geen opdrachten met deze status.
-            </div>
+            <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>{emptyMsg}</div>
           )}
         </div>
         {modal}
@@ -155,7 +159,7 @@ export function OpdrachtenList() {
         ))}
         {rows.length === 0 && (
           <div style={{ color: colors.subtle, fontSize: 13, padding: '16px 18px', borderTop: `1px solid ${colors.borderSoft}` }}>
-            Geen opdrachten met deze status.
+            {emptyMsg}
           </div>
         )}
       </Card>
