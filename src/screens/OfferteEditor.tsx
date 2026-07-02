@@ -12,6 +12,11 @@ import { DocumentPreview } from '../components/DocumentPreview'
 import { DownloadIcon } from '../components/icons'
 import { celebrate } from '../components/Celebration'
 
+// Supabase invokes edge functions by their URL slug. The dashboard sometimes
+// auto-generates a random slug (e.g. "hyper-task") instead of "send-quote", so
+// the slug is overridable via VITE_SEND_QUOTE_FN without touching code.
+const SEND_QUOTE_FN = (import.meta.env.VITE_SEND_QUOTE_FN as string | undefined) || 'send-quote'
+
 const fieldLabel = { fontSize: 12.5, color: colors.muted, display: 'block', marginBottom: 5 } as const
 const fieldInput = {
   width: '100%',
@@ -54,7 +59,7 @@ export function OfferteEditor() {
     try {
       const { quotePdfBase64 } = await import('../lib/pdf')
       const pdfBase64 = await quotePdfBase64(quote, klant, me)
-      const { error } = await requireSupabase().functions.invoke('send-quote', {
+      const { error } = await requireSupabase().functions.invoke(SEND_QUOTE_FN, {
         body: { quoteId: quote.id, pdfBase64 },
       })
       if (error) {
