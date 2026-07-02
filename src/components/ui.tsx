@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { accent, colors } from '../theme'
+import type { SaveState } from '../store'
 
 export function Card({
   children,
@@ -84,6 +85,80 @@ export function SecondaryButton({
     >
       {children}
     </button>
+  )
+}
+
+export function Skeleton({
+  width = '100%',
+  height = 16,
+  radius = 8,
+  style,
+}: {
+  width?: number | string
+  height?: number | string
+  radius?: number
+  style?: CSSProperties
+}) {
+  return <div className="skeleton" style={{ width, height, borderRadius: radius, ...style }} />
+}
+
+/** Generic screen placeholder shown while the user's data loads. */
+export function LoadingSkeleton() {
+  return (
+    <div aria-busy="true" aria-label="Laden">
+      <Skeleton width={220} height={26} style={{ marginBottom: 22 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 16 }}>
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            style={{ background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: 14, padding: 18 }}
+          >
+            <Skeleton width="60%" height={12} style={{ marginBottom: 14 }} />
+            <Skeleton width="45%" height={22} />
+          </div>
+        ))}
+      </div>
+      <div
+        style={{ background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: 14, padding: 18 }}
+      >
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0' }}>
+            <Skeleton width="40%" height={14} />
+            <Skeleton width={70} height={14} style={{ marginLeft: 'auto' }} />
+            <Skeleton width={90} height={14} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Subtle autosave status shown in editor headers. */
+export function SaveIndicator({ state }: { state: SaveState }) {
+  if (state === 'idle') return null
+  const saving = state === 'saving'
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        fontSize: 12.5,
+        color: saving ? colors.subtle : colors.positive,
+        fontWeight: 500,
+      }}
+    >
+      {saving ? (
+        <svg width="13" height="13" viewBox="0 0 24 24" className="spin" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M12 3a9 9 0 1 0 9 9" strokeLinecap="round" />
+        </svg>
+      ) : (
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4">
+          <path d="M4 10.5l3.5 3.5L16 5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      {saving ? 'Opslaan…' : 'Opgeslagen'}
+    </span>
   )
 }
 

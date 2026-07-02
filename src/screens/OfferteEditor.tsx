@@ -3,7 +3,7 @@ import { colors } from '../theme'
 import { useIdentity } from '../hooks/useIdentity'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { BackLink, Card, PrimaryButton, SecondaryButton } from '../components/ui'
+import { BackLink, Card, PrimaryButton, SaveIndicator, SecondaryButton } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { LineItemsEditor } from '../components/LineItemsEditor'
 import { DocumentPreview } from '../components/DocumentPreview'
@@ -24,7 +24,7 @@ export function OfferteEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus } = useStore()
+  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus, saveState } = useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
 
@@ -124,6 +124,7 @@ export function OfferteEditor() {
             {quote.nr}
           </h1>
           <Pill status={quote.status} />
+          <SaveIndicator state={saveState} />
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <SecondaryButton onClick={() => window.print()}>

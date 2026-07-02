@@ -26,11 +26,13 @@ import type {
 } from './types'
 
 export type DashVariant = 'a' | 'b'
+export type SaveState = 'idle' | 'saving' | 'saved'
 type DocKind = 'quote' | 'invoice'
 
 interface Store {
   loading: boolean
   error: string | null
+  saveState: SaveState
 
   clients: Client[]
   projects: Project[]
@@ -102,6 +104,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+
+  // Flash "saved" briefly after a successful persist, then settle to idle.
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const markSaved = useCallback(() => {
+    setSaveState('saved')
+    if (savedTimer.current) clearTimeout(savedTimer.current)
+    savedTimer.current = setTimeout(() => setSaveState('idle'), 1600)
+  }, [])
   const [clients, setClients] = useState<Client[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [quotes, setQuotes] = useState<Quote[]>([])
@@ -158,13 +169,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let saver = savers.current.get(key)
     if (!saver) {
       saver = debounce<[Quote | Invoice]>((doc) => {
+        setSaveState('saving')
         const op = kind === 'quote' ? db.saveQuote(doc as Quote) : db.saveInvoice(doc as Invoice)
-        op.catch((e) => setError(e instanceof Error ? e.message : 'Opslaan mislukt'))
+        op.then(markSaved).catch((e) => setError(e instanceof Error ? e.message : 'Opslaan mislukt'))
       }, 500)
       savers.current.set(key, saver)
     }
     return saver
-  }, [])
+  }, [markSaved])
 
   const editQuote = useCallback(
     (id: string, updater: (q: Quote) => Quote) => {
@@ -265,10 +277,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!current) return
     const updated = updater(current)
     setProjects((ps) => ps.map((p) => (p.id === id ? updated : p)))
-    db.saveProject(updated).catch((e) =>
-      setError(e instanceof Error ? e.message : 'Opslaan mislukt'),
-    )
-  }, [])
+    setSaveState('saving')
+    db.saveProject(updated)
+      .then(markSaved)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Opslaan mislukt'))
+  }, [markSaved])
 
   const setProjectStatus = useCallback(
     (id: string, status: ProjectStatus) => editProject(id, (p) => ({ ...p, status })),
@@ -331,6 +344,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     () => ({
       loading,
       error,
+      saveState,
       clients,
       projects,
       quotes,
@@ -364,6 +378,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [
       loading,
       error,
+      saveState,
       clients,
       projects,
       quotes,

@@ -6,7 +6,7 @@ import { accent, colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
 import type { ProjectStatus } from '../types'
-import { BackLink, Card, PrimaryButton } from '../components/ui'
+import { BackLink, Card, PrimaryButton, SaveIndicator } from '../components/ui'
 import { Pill } from '../components/Pill'
 
 const sectionTitle = {
@@ -48,7 +48,8 @@ export function OpdrachtDetail() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { projects, createDraftInvoice, setProjectStatus, addTimeEntry, removeTimeEntry } = useStore()
+  const { projects, createDraftInvoice, setProjectStatus, addTimeEntry, removeTimeEntry, saveState } =
+    useStore()
   const { clientById, quoteById } = useLookups()
 
   const [adding, setAdding] = useState(false)
@@ -321,6 +322,7 @@ export function OpdrachtDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <h1 style={{ margin: 0, fontSize: 23, fontWeight: 600, letterSpacing: '-0.02em' }}>{p.naam}</h1>
             {statusSelect}
+            <SaveIndicator state={saveState} />
           </div>
           <p style={{ margin: '7px 0 0', color: colors.muted, fontSize: 14 }}>voor {klant.bedrijf}</p>
         </div>

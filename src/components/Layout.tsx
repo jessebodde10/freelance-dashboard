@@ -6,6 +6,7 @@ import { useStore } from '../store'
 import { useIdentity } from '../hooks/useIdentity'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
+import { LoadingSkeleton } from './ui'
 
 function ContentGate({ children }: { children: ReactNode }) {
   const { loading, error } = useStore()
@@ -13,8 +14,7 @@ function ContentGate({ children }: { children: ReactNode }) {
     return (
       <div style={{ padding: '40px 4px', color: colors.negative, fontSize: 14 }}>{error}</div>
     )
-  if (loading)
-    return <div style={{ padding: '40px 4px', color: colors.muted, fontSize: 14 }}>Laden…</div>
+  if (loading) return <LoadingSkeleton />
   return <>{children}</>
 }
 
