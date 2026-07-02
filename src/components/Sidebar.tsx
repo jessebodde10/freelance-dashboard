@@ -5,6 +5,7 @@ import { useAuth } from '../auth'
 import { useIdentity } from '../hooks/useIdentity'
 import { useStore } from '../store'
 import { ThemeToggle } from './ui'
+import { openCommandPalette } from './CommandPalette'
 import {
   BrandMark,
   DashboardIcon,
@@ -83,6 +84,43 @@ export function Sidebar() {
           Kompas
         </span>
       </div>
+
+      <button
+        onClick={openCommandPalette}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '8px 10px',
+          marginBottom: 12,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 8,
+          background: colors.rowHover,
+          color: colors.muted,
+          fontSize: 13,
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+          <circle cx="7" cy="7" r="5" />
+          <path d="M11 11l3.5 3.5" strokeLinecap="round" />
+        </svg>
+        <span style={{ flex: 1 }}>Zoeken…</span>
+        <span
+          className="num"
+          style={{
+            fontSize: 11,
+            color: colors.faint,
+            border: `1px solid ${colors.border}`,
+            borderRadius: 5,
+            padding: '1px 5px',
+          }}
+        >
+          ⌘K
+        </span>
+      </button>
 
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {items.map((it) => (

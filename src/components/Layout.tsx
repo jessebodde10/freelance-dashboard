@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { colors } from '../theme'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -7,6 +7,7 @@ import { useIdentity } from '../hooks/useIdentity'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { LoadingSkeleton, ThemeToggle } from './ui'
+import { CommandPalette, openCommandPalette } from './CommandPalette'
 
 function ContentGate({ children }: { children: ReactNode }) {
   const { loading, error } = useStore()
@@ -100,6 +101,23 @@ function MobileLayout() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={openCommandPalette}
+            aria-label="Snelzoeken"
+            style={{
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              color: colors.subtle,
+              padding: 4,
+              display: 'flex',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <circle cx="7" cy="7" r="5" />
+              <path d="M11 11l3.5 3.5" strokeLinecap="round" />
+            </svg>
+          </button>
           <ThemeToggle />
           <div
             style={{
@@ -122,7 +140,9 @@ function MobileLayout() {
 
       <main style={{ flex: 1, overflowY: 'auto', padding: '16px 15px 24px' }}>
         <ContentGate>
-          <Outlet context={{ isMobile: true }} />
+          <Suspense fallback={<LoadingSkeleton />}>
+            <Outlet context={{ isMobile: true }} />
+          </Suspense>
         </ContentGate>
       </main>
 
@@ -147,7 +167,9 @@ function DesktopLayout() {
       <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '30px 40px 64px' }}>
           <ContentGate>
-            <Outlet context={{ isMobile: false }} />
+            <Suspense fallback={<LoadingSkeleton />}>
+              <Outlet context={{ isMobile: false }} />
+            </Suspense>
           </ContentGate>
         </div>
       </main>
@@ -157,7 +179,30 @@ function DesktopLayout() {
 
 export function Layout() {
   const isMobile = useIsMobile()
-  return isMobile ? <MobileLayout /> : <DesktopLayout />
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen((o) => !o)
+      }
+    }
+    const onOpen = () => setPaletteOpen(true)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('kompas:command-palette', onOpen)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('kompas:command-palette', onOpen)
+    }
+  }, [])
+
+  return (
+    <>
+      {isMobile ? <MobileLayout /> : <DesktopLayout />}
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+    </>
+  )
 }
 
 // Screens read this to branch between desktop and mobile markup.

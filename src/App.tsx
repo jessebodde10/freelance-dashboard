@@ -1,24 +1,36 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { isSupabaseConfigured } from './lib/supabase'
-import { RequireAuth } from './auth'
+import { RequireAuth, FullscreenMessage } from './auth'
 import { Layout } from './components/Layout'
 import { SetupNeeded } from './screens/SetupNeeded'
-import { Login } from './screens/Login'
-import { Register } from './screens/Register'
-import { Dashboard } from './screens/Dashboard'
-import { OpdrachtenList } from './screens/OpdrachtenList'
-import { OpdrachtDetail } from './screens/OpdrachtDetail'
-import { KlantenList } from './screens/KlantenList'
-import { KlantDetail } from './screens/KlantDetail'
-import { OffertesList } from './screens/OffertesList'
-import { OfferteEditor } from './screens/OfferteEditor'
-import { FacturenList } from './screens/FacturenList'
-import { FactuurEditor } from './screens/FactuurEditor'
+
+// Route screens are code-split so the initial load only ships the shell.
+const Login = lazy(() => import('./screens/Login').then((m) => ({ default: m.Login })))
+const Register = lazy(() => import('./screens/Register').then((m) => ({ default: m.Register })))
+const Dashboard = lazy(() => import('./screens/Dashboard').then((m) => ({ default: m.Dashboard })))
+const OpdrachtenList = lazy(() =>
+  import('./screens/OpdrachtenList').then((m) => ({ default: m.OpdrachtenList })),
+)
+const OpdrachtDetail = lazy(() =>
+  import('./screens/OpdrachtDetail').then((m) => ({ default: m.OpdrachtDetail })),
+)
+const KlantenList = lazy(() => import('./screens/KlantenList').then((m) => ({ default: m.KlantenList })))
+const KlantDetail = lazy(() => import('./screens/KlantDetail').then((m) => ({ default: m.KlantDetail })))
+const OffertesList = lazy(() => import('./screens/OffertesList').then((m) => ({ default: m.OffertesList })))
+const OfferteEditor = lazy(() =>
+  import('./screens/OfferteEditor').then((m) => ({ default: m.OfferteEditor })),
+)
+const FacturenList = lazy(() => import('./screens/FacturenList').then((m) => ({ default: m.FacturenList })))
+const FactuurEditor = lazy(() =>
+  import('./screens/FactuurEditor').then((m) => ({ default: m.FactuurEditor })),
+)
 
 export function App() {
   if (!isSupabaseConfigured) return <SetupNeeded />
 
   return (
+    <Suspense fallback={<FullscreenMessage text="Laden…" />}>
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -42,5 +54,6 @@ export function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   )
 }

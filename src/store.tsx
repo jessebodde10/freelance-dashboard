@@ -25,7 +25,6 @@ import type {
   VatRate,
 } from './types'
 
-export type DashVariant = 'a' | 'b'
 export type SaveState = 'idle' | 'saving' | 'saved'
 type DocKind = 'quote' | 'invoice'
 
@@ -38,9 +37,6 @@ interface Store {
   projects: Project[]
   quotes: Quote[]
   invoices: Invoice[]
-
-  dashVariant: DashVariant
-  setDashVariant: (v: DashVariant) => void
 
   projectFilter: string
   setProjectFilter: (v: string) => void
@@ -118,7 +114,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
 
-  const [dashVariant, setDashVariant] = useState<DashVariant>('a')
   const [projectFilter, setProjectFilter] = useState('alle')
   const [quoteFilter, setQuoteFilter] = useState('alle')
   const [invoiceFilter, setInvoiceFilter] = useState('alle')
@@ -349,8 +344,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       projects,
       quotes,
       invoices,
-      dashVariant,
-      setDashVariant,
       projectFilter,
       setProjectFilter,
       quoteFilter,
@@ -383,7 +376,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       projects,
       quotes,
       invoices,
-      dashVariant,
       projectFilter,
       quoteFilter,
       invoiceFilter,

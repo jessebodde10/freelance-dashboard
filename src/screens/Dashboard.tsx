@@ -163,9 +163,9 @@ function EmptyRow({ text }: { text: string }) {
   )
 }
 
-/* ----------------------------- Desktop variant A ----------------------------- */
+/* ------------------------------ Desktop dashboard ----------------------------- */
 
-function VariantA() {
+function DesktopDashboard() {
   const d = useDashboardData()
   const navigate = useNavigate()
   return (
@@ -220,6 +220,101 @@ function VariantA() {
           <div style={{ marginTop: 6, fontSize: 12.5, color: colors.muted }}>
             {d.offerteWachtTotaal} in afwachting
           </div>
+        </Card>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 1fr', gap: 16, marginBottom: 16 }}>
+        <Card style={{ padding: '20px 22px' }}>
+          <div style={cardLabel}>Omzet laatste 6 maanden</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: 14,
+              height: 120,
+              marginTop: 18,
+              position: 'relative',
+            }}
+          >
+            {!d.hasRevenue && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: colors.subtle,
+                  fontSize: 13,
+                }}
+              >
+                Nog geen betaalde facturen om omzet te tonen.
+              </div>
+            )}
+            {d.chart.map((m) => (
+              <div
+                key={m.label}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  height: '100%',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <div
+                  style={{ width: '100%', borderRadius: '6px 6px 0 0', background: m.color, height: m.h, transition: 'height .3s' }}
+                />
+                <div style={{ fontSize: 11, color: colors.subtle }}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card style={{ overflow: 'hidden' }}>
+          <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>Actie vereist</h2>
+            {d.focusCount !== '0' && (
+              <span
+                className="num"
+                style={{
+                  fontSize: 12,
+                  background: 'rgba(240,68,56,0.12)',
+                  color: colors.negative,
+                  padding: '1px 8px',
+                  borderRadius: 999,
+                  fontWeight: 600,
+                }}
+              >
+                {d.focusCount}
+              </span>
+            )}
+          </div>
+          {d.focusItems.length === 0 && <EmptyRow text="Niets dat je aandacht nodig heeft. 🎉" />}
+          {d.focusItems.map((i) => (
+            <div
+              key={i.key}
+              className="row-hoverable"
+              onClick={i.onClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                padding: '13px 18px',
+                borderTop: `1px solid ${colors.borderSoft}`,
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: i.dot, flex: 'none' }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 500, fontSize: 13.5 }}>{i.title}</div>
+                <div style={{ fontSize: 12, color: colors.subtle, marginTop: 2 }}>{i.sub}</div>
+              </div>
+              <div className="num" style={{ fontWeight: 600, fontSize: 13.5 }}>{i.amount}</div>
+            </div>
+          ))}
         </Card>
       </div>
 
@@ -293,174 +388,8 @@ function VariantA() {
               </div>
             ))}
           </Card>
-
-          <Card style={{ overflow: 'hidden' }}>
-            <SectionHeader title="Wacht op reactie" />
-            {d.waitingQuotes.length === 0 && <EmptyRow text="Geen offertes in afwachting." />}
-            {d.waitingQuotes.map((q) => (
-              <div
-                key={q.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px 18px',
-                  borderTop: `1px solid ${colors.borderSoft}`,
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 500, fontSize: 13.5 }}>{q.klant}</div>
-                  <div style={{ fontSize: 12, color: colors.subtle, marginTop: 2 }}>{q.ago}</div>
-                </div>
-                <div className="num" style={{ fontWeight: 600, fontSize: 13.5 }}>{q.bedrag}</div>
-              </div>
-            ))}
-          </Card>
         </div>
       </div>
-    </>
-  )
-}
-
-/* ----------------------------- Desktop variant B ----------------------------- */
-
-function VariantB() {
-  const d = useDashboardData()
-  return (
-    <>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16, marginBottom: 16 }}>
-        <Card style={{ padding: '22px 24px' }}>
-          <div>
-            <div style={cardLabel}>Omzet deze maand</div>
-            <div className="num" style={{ fontSize: 34, fontWeight: 600, marginTop: 6, letterSpacing: '-0.02em' }}>
-              {d.omzetMaand}
-            </div>
-            {d.omzetDelta && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  marginTop: 6,
-                  fontSize: 13,
-                  color: colors.positive,
-                  fontWeight: 500,
-                }}
-              >
-                <RevenueUpIcon />
-                {d.omzetDelta} t.o.v. vorige maand
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 120, marginTop: 24, position: 'relative' }}>
-            {!d.hasRevenue && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: colors.subtle,
-                  fontSize: 13,
-                }}
-              >
-                Nog geen betaalde facturen om omzet te tonen.
-              </div>
-            )}
-            {d.chart.map((m) => (
-              <div
-                key={m.label}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 8,
-                  height: '100%',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <div
-                  style={{
-                    width: '100%',
-                    borderRadius: '6px 6px 0 0',
-                    background: m.color,
-                    height: m.h,
-                    transition: 'height .3s',
-                  }}
-                />
-                <div style={{ fontSize: 11, color: colors.subtle }}>{m.label}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <div style={{ display: 'grid', gridTemplateRows: 'repeat(3,1fr)', gap: 12 }}>
-          <Card style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 12.5, color: colors.muted }}>Openstaand</div>
-              <div className="num" style={{ fontSize: 19, fontWeight: 600, marginTop: 2 }}>{d.openstaandTotaal}</div>
-            </div>
-            <span style={{ fontSize: 12, color: colors.negative, fontWeight: 500 }}>{d.teLaatLabel}</span>
-          </Card>
-          <Card style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 12.5, color: colors.muted }}>Actieve opdrachten</div>
-              <div className="num" style={{ fontSize: 19, fontWeight: 600, marginTop: 2 }}>{d.actiefCount}</div>
-            </div>
-          </Card>
-          <Card style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 12.5, color: colors.muted }}>Offertes in afwachting</div>
-              <div className="num" style={{ fontSize: 19, fontWeight: 600, marginTop: 2 }}>{d.offerteWachtTotaal}</div>
-            </div>
-            <span style={{ fontSize: 12, color: colors.muted }}>{d.offerteWachtCount} stuks</span>
-          </Card>
-        </div>
-      </div>
-
-      <Card style={{ overflow: 'hidden' }}>
-        <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>Actie vereist</h2>
-          <span
-            className="num"
-            style={{
-              fontSize: 12,
-              background: 'rgba(240,68,56,0.12)',
-              color: colors.negative,
-              padding: '1px 8px',
-              borderRadius: 999,
-              fontWeight: 600,
-            }}
-          >
-            {d.focusCount}
-          </span>
-        </div>
-        {d.focusItems.length === 0 && <EmptyRow text="Niets dat je aandacht nodig heeft. 🎉" />}
-        {d.focusItems.map((i) => (
-          <div
-            key={i.key}
-            className="row-hoverable"
-            onClick={i.onClick}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              padding: '13px 18px',
-              borderTop: `1px solid ${colors.borderSoft}`,
-              cursor: 'pointer',
-            }}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: i.dot, flex: 'none' }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 500, fontSize: 13.5 }}>{i.title}</div>
-              <div style={{ fontSize: 12, color: colors.subtle, marginTop: 2 }}>{i.sub}</div>
-            </div>
-            <div className="num" style={{ fontWeight: 600, fontSize: 13.5 }}>{i.amount}</div>
-          </div>
-        ))}
-      </Card>
     </>
   )
 }
@@ -566,35 +495,11 @@ function MobileDashboard() {
 export function Dashboard() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const navigate = useNavigate()
-  const { dashVariant, setDashVariant, createDraftQuote } = useStore()
+  const { createDraftQuote } = useStore()
   const { fullName } = useIdentity()
   const firstName = fullName.split(' ')[0]
 
   if (isMobile) return <MobileDashboard />
-
-  const seg = (on: boolean): React.CSSProperties =>
-    on
-      ? {
-          padding: '5px 14px',
-          borderRadius: 7,
-          fontSize: 13,
-          fontWeight: 600,
-          border: 'none',
-          cursor: 'pointer',
-          background: colors.surface,
-          color: colors.ink,
-          boxShadow: '0 1px 2px rgba(16,24,40,0.08)',
-        }
-      : {
-          padding: '5px 14px',
-          borderRadius: 7,
-          fontSize: 13,
-          fontWeight: 500,
-          border: 'none',
-          cursor: 'pointer',
-          background: 'transparent',
-          color: colors.muted,
-        }
 
   return (
     <>
@@ -615,22 +520,12 @@ export function Dashboard() {
             {todayLabel()} · hier is je overzicht
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', background: colors.borderSoft, borderRadius: 9, padding: 3 }}>
-            <button style={seg(dashVariant === 'a')} onClick={() => setDashVariant('a')}>
-              Overzicht
-            </button>
-            <button style={seg(dashVariant === 'b')} onClick={() => setDashVariant('b')}>
-              Focus
-            </button>
-          </div>
-          <PrimaryButton onClick={async () => navigate(`/offertes/${await createDraftQuote()}`)}>
-            <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Offerte
-          </PrimaryButton>
-        </div>
+        <PrimaryButton onClick={async () => navigate(`/offertes/${await createDraftQuote()}`)}>
+          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Offerte
+        </PrimaryButton>
       </div>
 
-      {dashVariant === 'a' ? <VariantA /> : <VariantB />}
+      <DesktopDashboard />
     </>
   )
 }
