@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { colors } from '../theme'
 
 export function Modal({
@@ -10,6 +10,24 @@ export function Modal({
   onClose: () => void
   children: ReactNode
 }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Close on Escape and lock background scroll while the dialog is open.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    // Move focus into the dialog for keyboard and screen-reader users.
+    panelRef.current?.focus()
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [onClose])
+
   return (
     <div
       onClick={onClose}
@@ -25,6 +43,11 @@ export function Modal({
       }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: '#fff',

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useEffect, type CSSProperties } from 'react'
 import { NavLink } from 'react-router-dom'
 import { accent } from '../theme'
 import {
@@ -33,6 +33,20 @@ const linkStyle = (active: boolean): CSSProperties => ({
 })
 
 export function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open, onClose])
+
   return (
     <>
       {/* Backdrop: dims the content and closes the drawer on tap. */}
