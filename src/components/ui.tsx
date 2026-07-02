@@ -1,6 +1,44 @@
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { accent, colors } from '../theme'
 import type { SaveState } from '../store'
+import { useTheme } from '../hooks/useTheme'
+
+export function ThemeToggle() {
+  const { theme, toggle } = useTheme()
+  const dark = theme === 'dark'
+  return (
+    <button
+      onClick={toggle}
+      aria-label={dark ? 'Schakel naar lichte modus' : 'Schakel naar donkere modus'}
+      title={dark ? 'Lichte modus' : 'Donkere modus'}
+      style={{
+        border: 'none',
+        background: 'none',
+        cursor: 'pointer',
+        color: colors.subtle,
+        padding: 4,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 'none',
+      }}
+    >
+      {dark ? (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+          <circle cx="12" cy="12" r="4" />
+          <path
+            d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" strokeLinejoin="round" />
+        </svg>
+      )}
+    </button>
+  )
+}
 
 export function Card({
   children,
@@ -72,9 +110,9 @@ export function SecondaryButton({
         alignItems: 'center',
         gap: 7,
         padding: '9px 14px',
-        background: '#fff',
+        background: colors.surface,
         color: colors.ink,
-        border: '1px solid #d3d7de',
+        border: `1px solid ${colors.borderStrong}`,
         borderRadius: 8,
         fontSize: 14,
         fontWeight: 500,
@@ -234,11 +272,11 @@ export function SearchField({
         style={{
           width: '100%',
           padding: '8px 12px 8px 34px',
-          border: '1px solid #d3d7de',
+          border: `1px solid ${colors.borderStrong}`,
           borderRadius: 8,
           fontSize: 13.5,
           color: colors.ink,
-          background: '#fff',
+          background: colors.surface,
         }}
       />
     </div>
@@ -264,8 +302,8 @@ export function FilterChips({
     borderRadius: 8,
     fontSize: 13,
     fontWeight: 500,
-    border: '1px solid #e2e5ea',
-    background: '#fff',
+    border: `1px solid ${colors.border}`,
+    background: colors.surface,
     color: colors.text,
     cursor: 'pointer',
   }

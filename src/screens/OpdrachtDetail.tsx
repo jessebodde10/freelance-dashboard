@@ -27,20 +27,20 @@ const statusOptions: { value: ProjectStatus; label: string }[] = [
 
 const smallSelect = {
   padding: '6px 9px',
-  border: '1px solid #d3d7de',
+  border: `1px solid ${colors.borderStrong}`,
   borderRadius: 8,
   fontSize: 13,
   color: colors.ink,
-  background: '#fff',
+  background: colors.surface,
 } as const
 
 const entryInput = {
   padding: '8px 10px',
-  border: '1px solid #d3d7de',
+  border: `1px solid ${colors.borderStrong}`,
   borderRadius: 8,
   fontSize: 13,
   color: colors.ink,
-  background: '#fff',
+  background: colors.surface,
   width: '100%',
 } as const
 
@@ -130,8 +130,8 @@ export function OpdrachtDetail() {
         <button
           onClick={resetForm}
           style={{
-            border: '1px solid #d3d7de',
-            background: '#fff',
+            border: `1px solid ${colors.borderStrong}`,
+            background: colors.surface,
             borderRadius: 8,
             padding: '8px 14px',
             fontSize: 13,
@@ -151,8 +151,8 @@ export function OpdrachtDetail() {
         marginTop: 12,
         width: '100%',
         padding: 9,
-        border: '1px dashed #d3d7de',
-        background: '#fafbfc',
+        border: `1px dashed ${colors.borderStrong}`,
+        background: colors.rowHover,
         borderRadius: 8,
         color: colors.muted,
         fontSize: 13,
@@ -210,7 +210,7 @@ export function OpdrachtDetail() {
             alignItems: 'center',
             gap: 10,
             padding: isMobile ? '8px 0' : '9px 0',
-            borderTop: '1px solid #f4f5f7',
+            borderTop: `1px solid ${colors.borderSoft}`,
             fontSize: isMobile ? 13 : 13.5,
           }}
         >

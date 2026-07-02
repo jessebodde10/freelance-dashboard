@@ -33,7 +33,7 @@ export function AuthLayout({
         </div>
         <div
           style={{
-            background: '#fff',
+            background: colors.surface,
             border: `1px solid ${colors.border}`,
             borderRadius: 16,
             padding: 28,
@@ -60,11 +60,11 @@ const labelStyle: CSSProperties = {
 const inputStyle: CSSProperties = {
   width: '100%',
   padding: '10px 12px',
-  border: '1px solid #d3d7de',
+  border: `1px solid ${colors.borderStrong}`,
   borderRadius: 9,
   fontSize: 14,
   color: colors.ink,
-  background: '#fff',
+  background: colors.surface,
 }
 
 export function Field({

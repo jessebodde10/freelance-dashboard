@@ -4,6 +4,7 @@ import { accent, colors } from '../theme'
 import { useAuth } from '../auth'
 import { useIdentity } from '../hooks/useIdentity'
 import { useStore } from '../store'
+import { ThemeToggle } from './ui'
 import {
   BrandMark,
   DashboardIcon,
@@ -158,11 +159,12 @@ export function Sidebar() {
           </div>
           <div style={{ fontSize: 12, color: colors.subtle, lineHeight: 1.3 }}>{identity.displaySub}</div>
         </div>
+        <ThemeToggle />
         <button
           onClick={() => signOut()}
           title="Uitloggen"
           aria-label="Uitloggen"
-          style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#98a2b3', padding: 4, flex: 'none' }}
+          style={{ border: 'none', background: 'none', cursor: 'pointer', color: colors.subtle, padding: 4, flex: 'none' }}
         >
           <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6">
             <path d="M7 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3" />

@@ -10,11 +10,51 @@ body {
   padding: 0;
 }
 
+/* Neutral palette as CSS variables so the whole UI can switch themes.
+   theme.ts references these via var(); [data-theme="dark"] overrides them. */
+:root {
+  --app-bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #fafbfc;
+  --border: #e7e9ed;
+  --border-soft: #f0f1f4;
+  --border-strong: #d3d7de;
+  --ink: #1a1f36;
+  --text: #4b5563;
+  --muted: #697386;
+  --subtle: #8a94a6;
+  --faint: #a4abb8;
+  --accent-soft: #eef2ff;
+  --accent-ink: #4338ca;
+  --overlay: rgba(16, 24, 40, 0.35);
+  --scrollbar: #d3d7de;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --app-bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1e222b;
+  --border: #2a2f3a;
+  --border-soft: #23272f;
+  --border-strong: #363d4a;
+  --ink: #e7e9ef;
+  --text: #b3bac6;
+  --muted: #8b93a3;
+  --subtle: #737b8c;
+  --faint: #5c6474;
+  --accent-soft: #23273a;
+  --accent-ink: #a5b4fc;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --scrollbar: #3a4150;
+  color-scheme: dark;
+}
+
 body {
   font-family: 'Geist', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #eef0f3;
-  color: #1a1f36;
+  background: var(--app-bg);
+  color: var(--ink);
   font-size: 14px;
 }
 
@@ -59,7 +99,7 @@ a:focus-visible,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d3d7de;
+  background: var(--scrollbar);
   border-radius: 8px;
   border: 3px solid transparent;
   background-clip: padding-box;
@@ -76,7 +116,7 @@ a:focus-visible,
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .card-hoverable:hover {
-  border-color: #d3d7de;
+  border-color: var(--border-strong);
   box-shadow: 0 1px 4px rgba(16, 24, 40, 0.04);
 }
 
@@ -84,7 +124,7 @@ a:focus-visible,
   transition: background 0.12s ease;
 }
 .row-hoverable:hover {
-  background: #fafbfc;
+  background: var(--surface-2);
 }
 
 /* Spinner (autosave indicator) */
@@ -99,7 +139,7 @@ a:focus-visible,
 
 /* Skeleton loading shimmer */
 .skeleton {
-  background: linear-gradient(90deg, #eef0f3 25%, #f6f7f9 37%, #eef0f3 63%);
+  background: linear-gradient(90deg, var(--border) 25%, var(--surface-2) 37%, var(--border) 63%);
   background-size: 400% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
 }

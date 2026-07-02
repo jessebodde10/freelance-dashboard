@@ -16,9 +16,9 @@ export function EmptyState({
   return (
     <div
       style={{
-        border: `1px dashed #d9dde3`,
+        border: `1px dashed ${colors.borderStrong}`,
         borderRadius: 14,
-        background: '#fff',
+        background: colors.surface,
         padding: compact ? '28px 20px' : '48px 24px',
         textAlign: 'center',
         color: colors.muted,

@@ -34,7 +34,7 @@ export function Modal({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(16,24,40,0.35)',
+        background: 'var(--overlay)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -50,7 +50,7 @@ export function Modal({
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#fff',
+          background: colors.surface,
           borderRadius: 16,
           border: `1px solid ${colors.border}`,
           boxShadow: '0 20px 60px rgba(16,24,40,0.25)',
@@ -66,7 +66,7 @@ export function Modal({
           <button
             onClick={onClose}
             aria-label="Sluiten"
-            style={{ border: 'none', background: 'none', fontSize: 22, lineHeight: 1, color: '#98a2b3', cursor: 'pointer' }}
+            style={{ border: 'none', background: 'none', fontSize: 22, lineHeight: 1, color: colors.subtle, cursor: 'pointer' }}
           >
             ×
           </button>

@@ -1,6 +1,6 @@
 import { useEffect, type CSSProperties } from 'react'
 import { NavLink } from 'react-router-dom'
-import { accent } from '../theme'
+import { accent, colors } from '../theme'
 import {
   DashboardIcon,
   FacturenIcon,
@@ -26,8 +26,8 @@ const linkStyle = (active: boolean): CSSProperties => ({
   padding: '11px 14px',
   borderRadius: 10,
   textDecoration: 'none',
-  color: active ? accent.ink : '#475467',
-  background: active ? '#f2f2fd' : 'transparent',
+  color: active ? accent.ink : colors.text,
+  background: active ? accent.soft : 'transparent',
   fontSize: 15,
   fontWeight: active ? 600 : 500,
 })
@@ -55,7 +55,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(16,24,40,0.4)',
+          background: 'var(--overlay)',
           opacity: open ? 1 : 0,
           pointerEvents: open ? 'auto' : 'none',
           transition: 'opacity 0.2s ease',
@@ -71,8 +71,8 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
           left: 0,
           bottom: 0,
           width: DRAWER_WIDTH,
-          background: '#fff',
-          borderRight: '1px solid #eceef1',
+          background: colors.surface,
+          borderRight: `1px solid ${colors.border}`,
           boxShadow: open ? '2px 0 16px rgba(16,24,40,0.12)' : 'none',
           transform: open ? 'translateX(0)' : `translateX(-${DRAWER_WIDTH + 20}px)`,
           transition: 'transform 0.22s ease',
@@ -100,7 +100,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
               cursor: 'pointer',
               fontSize: 22,
               lineHeight: 1,
-              color: '#98a2b3',
+              color: colors.subtle,
               padding: 4,
             }}
           >
@@ -119,7 +119,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={20} style={{ color: isActive ? accent.ink : '#98a2b3' }} />
+                  <Icon size={20} style={{ color: isActive ? accent.ink : colors.subtle }} />
                   {label}
                 </>
               )}

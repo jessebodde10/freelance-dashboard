@@ -6,7 +6,7 @@ import { useStore } from '../store'
 import { useIdentity } from '../hooks/useIdentity'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
-import { LoadingSkeleton } from './ui'
+import { LoadingSkeleton, ThemeToggle } from './ui'
 
 function ContentGate({ children }: { children: ReactNode }) {
   const { loading, error } = useStore()
@@ -57,8 +57,8 @@ function MobileLayout() {
         style={{
           flex: 'none',
           padding: '12px 18px',
-          background: '#fff',
-          borderBottom: '1px solid #eceef1',
+          background: colors.surface,
+          borderBottom: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -99,21 +99,24 @@ function MobileLayout() {
             {title}
           </span>
         </div>
-        <div
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            background: '#e9eafe',
-            color: '#4338ca',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            fontSize: 11,
-          }}
-        >
-          {identity.initials}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <ThemeToggle />
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              background: '#e9eafe',
+              color: '#4338ca',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 600,
+              fontSize: 11,
+            }}
+          >
+            {identity.initials}
+          </div>
         </div>
       </header>
 

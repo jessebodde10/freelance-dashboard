@@ -8,10 +8,12 @@ const GRID = '1fr 58px 82px 62px 88px 26px'
 
 const inputStyle: CSSProperties = {
   padding: '8px 10px',
-  border: '1px solid #e2e5ea',
+  border: `1px solid ${colors.border}`,
   borderRadius: 7,
   fontSize: 13,
   width: '100%',
+  background: colors.surface,
+  color: colors.ink,
 }
 const numInput: CSSProperties = { ...inputStyle, padding: '8px 8px', textAlign: 'right' }
 
@@ -83,7 +85,7 @@ export function LineItemsEditor({
             value={l.vat}
             className="num"
             onChange={(e) => updateLine(kind, docId, l.id, 'vat', e.target.value)}
-            style={{ ...numInput, padding: '8px 4px', background: '#fff' }}
+            style={{ ...numInput, padding: '8px 4px', background: colors.surface }}
           >
             <option value="21">21%</option>
             <option value="9">9%</option>
@@ -98,7 +100,7 @@ export function LineItemsEditor({
             style={{
               border: 'none',
               background: 'none',
-              color: '#c0c6d0',
+              color: colors.faint,
               cursor: 'pointer',
               fontSize: 16,
               lineHeight: 1,
@@ -114,8 +116,8 @@ export function LineItemsEditor({
         style={{
           marginTop: 6,
           padding: '8px 12px',
-          border: '1px dashed #d3d7de',
-          background: '#fafbfc',
+          border: `1px dashed ${colors.borderStrong}`,
+          background: colors.rowHover,
           borderRadius: 8,
           color: colors.muted,
           fontSize: 13,

@@ -53,11 +53,11 @@ export function NewProjectModal({
   const selectStyle = {
     width: '100%',
     padding: '10px 12px',
-    border: '1px solid #d3d7de',
+    border: `1px solid ${colors.borderStrong}`,
     borderRadius: 9,
     fontSize: 14,
     color: colors.ink,
-    background: '#fff',
+    background: colors.surface,
   } as const
   const labelStyle = { fontSize: 12.5, color: colors.muted, display: 'block', marginBottom: 5, fontWeight: 500 } as const
 

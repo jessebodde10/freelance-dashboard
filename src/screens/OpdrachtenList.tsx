@@ -122,7 +122,7 @@ export function OpdrachtenList() {
             gridTemplateColumns: GRID,
             padding: '11px 18px',
             background: colors.rowHover,
-            borderBottom: '1px solid #eceef1',
+            borderBottom: `1px solid ${colors.border}`,
             fontSize: 12,
             fontWeight: 500,
             color: colors.subtle,

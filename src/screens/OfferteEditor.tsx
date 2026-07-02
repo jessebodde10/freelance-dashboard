@@ -13,11 +13,11 @@ const fieldLabel = { fontSize: 12.5, color: colors.muted, display: 'block', marg
 const fieldInput = {
   width: '100%',
   padding: '9px 11px',
-  border: '1px solid #d3d7de',
+  border: `1px solid ${colors.borderStrong}`,
   borderRadius: 8,
   fontSize: 13.5,
   color: colors.ink,
-  background: '#fff',
+  background: colors.surface,
 } as const
 
 export function OfferteEditor() {

@@ -77,7 +77,7 @@ function useDashboardData() {
       chart: months.map((c, i) => ({
         label: c.label,
         h: `${Math.round((c.v / maxV) * 100)}%`,
-        color: i === months.length - 1 ? accent.solid : '#e2e5ea',
+        color: i === months.length - 1 ? accent.solid : colors.border,
       })),
       openInvoices: openInv.map((i) => ({
         id: i.id,
@@ -427,7 +427,7 @@ function VariantB() {
             className="num"
             style={{
               fontSize: 12,
-              background: '#fef3f2',
+              background: 'rgba(240,68,56,0.12)',
               color: colors.negative,
               padding: '1px 8px',
               borderRadius: 999,
@@ -581,7 +581,7 @@ export function Dashboard() {
           fontWeight: 600,
           border: 'none',
           cursor: 'pointer',
-          background: '#fff',
+          background: colors.surface,
           color: colors.ink,
           boxShadow: '0 1px 2px rgba(16,24,40,0.08)',
         }
@@ -616,7 +616,7 @@ export function Dashboard() {
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', background: '#eff0f3', borderRadius: 9, padding: 3 }}>
+          <div style={{ display: 'flex', background: colors.borderSoft, borderRadius: 9, padding: 3 }}>
             <button style={seg(dashVariant === 'a')} onClick={() => setDashVariant('a')}>
               Overzicht
             </button>
