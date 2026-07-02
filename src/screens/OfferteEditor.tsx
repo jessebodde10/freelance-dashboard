@@ -175,9 +175,14 @@ export function OfferteEditor() {
             PDF-export
           </SecondaryButton>
           {quote.status === 'concept' && (
-            <PrimaryButton onClick={verstuur} disabled={sending}>
-              {sending ? 'Versturen…' : 'Versturen'}
-            </PrimaryButton>
+            <>
+              <SecondaryButton onClick={() => setQuoteStatus(quote.id, 'verstuurd')} disabled={sending}>
+                Markeer als verstuurd
+              </SecondaryButton>
+              <PrimaryButton onClick={verstuur} disabled={sending}>
+                {sending ? 'Versturen…' : 'Versturen per e-mail'}
+              </PrimaryButton>
+            </>
           )}
           {quote.status === 'verstuurd' && (
             <PrimaryButton onClick={() => setQuoteStatus(quote.id, 'geaccepteerd')}>
