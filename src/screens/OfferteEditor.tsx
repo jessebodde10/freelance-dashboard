@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { colors } from '../theme'
+import { requireSupabase } from '../lib/supabase'
 import { useIdentity } from '../hooks/useIdentity'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
@@ -29,10 +31,50 @@ export function OfferteEditor() {
   const { clientById } = useLookups()
   const me = useIdentity()
 
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState('')
+
   const quote = id ? getQuote(id) : undefined
   if (!quote) return <Navigate to="/offertes" replace />
 
   const klant = clientById(quote.klantId)
+
+  async function verstuur() {
+    if (!quote) return
+    setSendError('')
+    if (!klant) {
+      setSendError('Koppel eerst een klant aan de offerte.')
+      return
+    }
+    if (!klant.email) {
+      setSendError('Deze klant heeft geen e-mailadres. Voeg er een toe bij de klant.')
+      return
+    }
+    setSending(true)
+    try {
+      const { quotePdfBase64 } = await import('../lib/pdf')
+      const pdfBase64 = await quotePdfBase64(quote, klant, me)
+      const { error } = await requireSupabase().functions.invoke('send-quote', {
+        body: { quoteId: quote.id, pdfBase64 },
+      })
+      if (error) {
+        let msg = error.message
+        try {
+          const body = await (error as { context?: Response }).context?.json?.()
+          if (body?.error) msg = body.error
+        } catch {
+          /* keep default message */
+        }
+        throw new Error(msg)
+      }
+      setQuoteStatus(quote.id, 'verstuurd')
+      celebrate('Offerte verzonden')
+    } catch (e) {
+      setSendError(e instanceof Error ? e.message : 'Versturen mislukt')
+    } finally {
+      setSending(false)
+    }
+  }
 
   const form = (
     <Card style={{ padding: 20 }}>
@@ -133,13 +175,8 @@ export function OfferteEditor() {
             PDF-export
           </SecondaryButton>
           {quote.status === 'concept' && (
-            <PrimaryButton
-              onClick={() => {
-                setQuoteStatus(quote.id, 'verstuurd')
-                celebrate('Offerte verzonden')
-              }}
-            >
-              Versturen
+            <PrimaryButton onClick={verstuur} disabled={sending}>
+              {sending ? 'Versturen…' : 'Versturen'}
             </PrimaryButton>
           )}
           {quote.status === 'verstuurd' && (
@@ -149,6 +186,22 @@ export function OfferteEditor() {
           )}
         </div>
       </div>
+
+      {sendError && (
+        <div
+          style={{
+            background: 'rgba(240,68,56,0.10)',
+            color: colors.negative,
+            border: `1px solid rgba(240,68,56,0.30)`,
+            borderRadius: 9,
+            padding: '10px 14px',
+            fontSize: 13.5,
+            marginBottom: 16,
+          }}
+        >
+          {sendError}
+        </div>
+      )}
 
       <div
         style={{
