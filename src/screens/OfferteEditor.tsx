@@ -8,6 +8,7 @@ import { Pill } from '../components/Pill'
 import { LineItemsEditor } from '../components/LineItemsEditor'
 import { DocumentPreview } from '../components/DocumentPreview'
 import { DownloadIcon } from '../components/icons'
+import { celebrate } from '../components/Celebration'
 
 const fieldLabel = { fontSize: 12.5, color: colors.muted, display: 'block', marginBottom: 5 } as const
 const fieldInput = {
@@ -132,7 +133,14 @@ export function OfferteEditor() {
             PDF-export
           </SecondaryButton>
           {quote.status === 'concept' && (
-            <PrimaryButton onClick={() => setQuoteStatus(quote.id, 'verstuurd')}>Versturen</PrimaryButton>
+            <PrimaryButton
+              onClick={() => {
+                setQuoteStatus(quote.id, 'verstuurd')
+                celebrate('Offerte verzonden')
+              }}
+            >
+              Versturen
+            </PrimaryButton>
           )}
           {quote.status === 'verstuurd' && (
             <PrimaryButton onClick={() => setQuoteStatus(quote.id, 'geaccepteerd')}>

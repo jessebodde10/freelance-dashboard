@@ -8,6 +8,7 @@ import { Pill } from '../components/Pill'
 import { LineItemsEditor } from '../components/LineItemsEditor'
 import { DocumentPreview } from '../components/DocumentPreview'
 import { DownloadIcon } from '../components/icons'
+import { celebrate } from '../components/Celebration'
 
 const fieldLabel = { fontSize: 12.5, color: colors.muted, display: 'block', marginBottom: 5 } as const
 const fieldInput = {
@@ -133,7 +134,12 @@ export function FactuurEditor() {
               Markeer als open
             </SecondaryButton>
           ) : (
-            <PrimaryButton onClick={() => setInvoiceStatus(invoice.id, 'betaald')}>
+            <PrimaryButton
+              onClick={() => {
+                setInvoiceStatus(invoice.id, 'betaald')
+                celebrate('Factuur betaald')
+              }}
+            >
               Markeer als betaald
             </PrimaryButton>
           )}

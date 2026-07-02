@@ -9,6 +9,7 @@ import { MobileNav } from './MobileNav'
 import { LoadingSkeleton, ThemeToggle } from './ui'
 import { CommandPalette, openCommandPalette } from './CommandPalette'
 import { ProfileModal } from './ProfileModal'
+import { Celebration } from './Celebration'
 
 function ContentGate({ children }: { children: ReactNode }) {
   const { loading, error } = useStore()
@@ -209,6 +210,7 @@ export function Layout() {
     <>
       {isMobile ? <MobileLayout /> : <DesktopLayout />}
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <Celebration />
     </>
   )
 }
