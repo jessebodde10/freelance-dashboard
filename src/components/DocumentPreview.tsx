@@ -149,12 +149,12 @@ export function DocumentPreview({
             display: 'grid',
             gridTemplateColumns: GRID,
             gap: 6,
-            paddingBottom: 7,
+            paddingBottom: 10,
             borderBottom: '1px solid #1a1f36',
             fontSize: 9.5,
             color: colors.subtle,
             textTransform: 'uppercase',
-            letterSpacing: '0.04em',
+            letterSpacing: '0.05em',
           }}
         >
           <span>Omschrijving</span>
@@ -170,9 +170,9 @@ export function DocumentPreview({
               display: 'grid',
               gridTemplateColumns: GRID,
               gap: 6,
-              padding: '8px 0',
+              padding: '11px 0',
               borderBottom: `1px solid ${colors.borderSoft}`,
-              fontSize: 10.5,
+              fontSize: 11,
             }}
           >
             <span>{l.desc}</span>
@@ -190,26 +190,26 @@ export function DocumentPreview({
 
         <div
           style={{
-            marginTop: 14,
+            marginTop: 28,
             marginLeft: 'auto',
-            width: '60%',
+            width: '58%',
             display: 'flex',
             flexDirection: 'column',
-            gap: 6,
-            fontSize: 10.5,
+            gap: 10,
+            fontSize: 11,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: colors.text }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: colors.muted }}>
             <span>Subtotaal</span>
-            <span className="num">{euro(subtotaal)}</span>
+            <span className="num" style={{ color: colors.ink }}>{euro(subtotaal)}</span>
           </div>
           {btwGroups.map((b) => (
             <div
               key={b.pct}
-              style={{ display: 'flex', justifyContent: 'space-between', color: colors.text }}
+              style={{ display: 'flex', justifyContent: 'space-between', color: colors.muted }}
             >
               <span>BTW {b.pct}%</span>
-              <span className="num">{euro(b.bedrag)}</span>
+              <span className="num" style={{ color: colors.ink }}>{euro(b.bedrag)}</span>
             </div>
           ))}
           <div
@@ -217,9 +217,10 @@ export function DocumentPreview({
               display: 'flex',
               justifyContent: 'space-between',
               fontWeight: 700,
-              paddingTop: 6,
+              marginTop: 4,
+              paddingTop: 12,
               borderTop: '1px solid #1a1f36',
-              fontSize: 12,
+              fontSize: 13,
             }}
           >
             <span>{totalLabel}</span>

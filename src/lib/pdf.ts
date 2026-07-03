@@ -114,26 +114,26 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
     doc.text(String(l.qty), colQty, y, { align: 'right' })
     doc.text(euro(l.price), colPrice, y, { align: 'right' })
     doc.text(euro(l.qty * l.price), colAmount, y, { align: 'right' })
-    y += Math.max(descLines.length, 1) * 13 + 6
-    doc.setDrawColor(240, 241, 244).setLineWidth(0.5).line(MARGIN, y - 6, right, y - 6)
+    y += Math.max(descLines.length, 1) * 13 + 9
+    doc.setDrawColor(240, 241, 244).setLineWidth(0.5).line(MARGIN, y - 7, right, y - 7)
   }
 
   // ---- totals ----
   const { subtotaal, btwGroups, totaal } = computeTotals(input.lines)
-  y += 10
+  y += 20
   const labelX = right - 150
   const drawTotal = (label: string, value: string, bold = false) => {
-    doc.setFont('helvetica', bold ? 'bold' : 'normal').setFontSize(bold ? 11 : 10)
+    doc.setFont('helvetica', bold ? 'bold' : 'normal').setFontSize(bold ? 12 : 10)
     doc.setTextColor(...(bold ? ink : gray))
     doc.text(label, labelX, y, { align: 'right' })
     doc.setTextColor(...ink)
     doc.text(value, colAmount, y, { align: 'right' })
-    y += bold ? 18 : 15
+    y += bold ? 20 : 17
   }
   drawTotal('Subtotaal', euro(subtotaal))
   for (const b of btwGroups) drawTotal(`BTW ${b.pct}%`, euro(b.bedrag))
-  y += 2
-  doc.setDrawColor(26, 31, 54).setLineWidth(0.8).line(labelX - 30, y - 8, right, y - 8)
+  y += 5
+  doc.setDrawColor(26, 31, 54).setLineWidth(0.8).line(labelX - 30, y - 10, right, y - 10)
   drawTotal(input.totalLabel, euro(totaal), true)
 
   // ---- optional note ----
