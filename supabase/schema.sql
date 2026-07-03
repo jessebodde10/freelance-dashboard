@@ -13,11 +13,17 @@ create table if not exists public.profiles (
   adres      text,
   postcode   text,
   plaats     text,
+  telefoon   text,
+  website    text,
   iban       text,
   kvk        text,
   btw        text,
   created_at timestamptz not null default now()
 );
+
+-- For databases created before contact fields existed:
+alter table public.profiles add column if not exists telefoon text;
+alter table public.profiles add column if not exists website  text;
 
 -- ------------------------------------------------------------------- clients
 create table if not exists public.clients (
@@ -60,9 +66,11 @@ create table if not exists public.quotes (
   status     text not null default 'concept',
   datum      text,
   geldig_tot text,
+  notitie    text,
   lines      jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
+alter table public.quotes add column if not exists notitie text;
 
 -- ------------------------------------------------------------------ invoices
 create table if not exists public.invoices (
@@ -73,9 +81,11 @@ create table if not exists public.invoices (
   status     text not null default 'open',
   verval     text,
   datum      text,
+  notitie    text,
   lines      jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
+alter table public.invoices add column if not exists notitie text;
 
 -- ------------------------------------------------------- row level security
 alter table public.profiles enable row level security;
@@ -110,7 +120,8 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles
-    (id, email, voornaam, achternaam, bedrijf, adres, postcode, plaats, iban, kvk, btw)
+    (id, email, voornaam, achternaam, bedrijf, adres, postcode, plaats,
+     telefoon, website, iban, kvk, btw)
   values (
     new.id,
     new.email,
@@ -120,6 +131,8 @@ begin
     new.raw_user_meta_data ->> 'adres',
     new.raw_user_meta_data ->> 'postcode',
     new.raw_user_meta_data ->> 'plaats',
+    new.raw_user_meta_data ->> 'telefoon',
+    new.raw_user_meta_data ->> 'website',
     new.raw_user_meta_data ->> 'iban',
     new.raw_user_meta_data ->> 'kvk',
     new.raw_user_meta_data ->> 'btw'

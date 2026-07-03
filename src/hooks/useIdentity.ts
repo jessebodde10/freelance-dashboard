@@ -13,6 +13,9 @@ export interface Identity {
   adres: string
   postcode: string
   plaats: string
+  email: string
+  telefoon: string
+  website: string
   iban: string
   kvk: string
   btw: string
@@ -38,6 +41,9 @@ export function useIdentity(): Identity {
       adres: profile?.adres ?? '',
       postcode: profile?.postcode ?? '',
       plaats: profile?.plaats ?? '',
+      email,
+      telefoon: profile?.telefoon ?? '',
+      website: profile?.website ?? '',
       iban: profile?.iban ?? '',
       kvk: profile?.kvk ?? '',
       btw: profile?.btw ?? '',

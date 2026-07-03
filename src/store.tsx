@@ -64,6 +64,7 @@ interface Store {
   ) => void
   removeLine: (kind: DocKind, docId: string, lineId: number) => void
   setDocClient: (kind: DocKind, docId: string, klantId: string) => void
+  setDocNotitie: (kind: DocKind, docId: string, value: string) => void
   setQuoteGeldigTot: (docId: string, value: string) => void
   setInvoiceVerval: (docId: string, value: string) => void
   setQuoteStatus: (docId: string, status: QuoteStatus) => void
@@ -231,6 +232,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     [editQuote, editInvoice],
   )
+  const setDocNotitie = useCallback(
+    (kind: DocKind, docId: string, value: string) => {
+      if (kind === 'quote') editQuote(docId, (q) => ({ ...q, notitie: value }))
+      else editInvoice(docId, (i) => ({ ...i, notitie: value }))
+    },
+    [editQuote, editInvoice],
+  )
   const setQuoteGeldigTot = useCallback(
     (docId: string, value: string) => editQuote(docId, (q) => ({ ...q, geldigTot: value })),
     [editQuote],
@@ -315,6 +323,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       status: 'concept',
       datum: shortDate(),
       geldigTot: datePlusDays(14),
+      notitie: '',
       lines: [blankLine()],
     }
     const created = await db.insertQuote(userId, draft)
@@ -342,6 +351,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       status: 'open',
       verval: datePlusDays(14),
       datum: shortDate(),
+      notitie: '',
       lines: [blankLine()],
     }
     const created = await db.insertInvoice(userId, draft)
@@ -375,6 +385,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateLine,
       removeLine,
       setDocClient,
+      setDocNotitie,
       setQuoteGeldigTot,
       setInvoiceVerval,
       setQuoteStatus,
@@ -404,6 +415,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateLine,
       removeLine,
       setDocClient,
+      setDocNotitie,
       setQuoteGeldigTot,
       setInvoiceVerval,
       setQuoteStatus,

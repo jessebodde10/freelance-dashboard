@@ -41,6 +41,7 @@ interface QuoteRow {
   status: string
   datum: string | null
   geldig_tot: string | null
+  notitie: string | null
   lines: LineItem[] | null
 }
 interface InvoiceRow {
@@ -50,6 +51,7 @@ interface InvoiceRow {
   status: string
   verval: string | null
   datum: string | null
+  notitie: string | null
   lines: LineItem[] | null
 }
 
@@ -81,6 +83,7 @@ const toQuote = (r: QuoteRow): Quote => ({
   status: r.status as QuoteStatus,
   datum: r.datum ?? '',
   geldigTot: r.geldig_tot ?? '',
+  notitie: r.notitie ?? '',
   lines: r.lines ?? [],
 })
 const toInvoice = (r: InvoiceRow): Invoice => ({
@@ -90,6 +93,7 @@ const toInvoice = (r: InvoiceRow): Invoice => ({
   status: r.status as InvoiceStatus,
   verval: r.verval ?? '',
   datum: r.datum ?? '',
+  notitie: r.notitie ?? '',
   lines: r.lines ?? [],
 })
 
@@ -111,6 +115,8 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
     adres: data.adres ?? '',
     postcode: data.postcode ?? '',
     plaats: data.plaats ?? '',
+    telefoon: data.telefoon ?? '',
+    website: data.website ?? '',
     iban: data.iban ?? '',
     kvk: data.kvk ?? '',
     btw: data.btw ?? '',
@@ -127,6 +133,8 @@ export async function updateProfile(userId: string, input: ProfileInput): Promis
       adres: input.adres,
       postcode: input.postcode,
       plaats: input.plaats,
+      telefoon: input.telefoon,
+      website: input.website,
       iban: input.iban,
       kvk: input.kvk,
       btw: input.btw,
@@ -230,6 +238,7 @@ export async function insertQuote(
       status: q.status,
       datum: q.datum,
       geldig_tot: q.geldigTot,
+      notitie: q.notitie,
       lines: q.lines,
     })
     .select('*')
@@ -251,6 +260,7 @@ export async function insertInvoice(
       status: inv.status,
       verval: inv.verval,
       datum: inv.datum,
+      notitie: inv.notitie,
       lines: inv.lines,
     })
     .select('*')
@@ -268,6 +278,7 @@ export async function saveQuote(q: Quote): Promise<void> {
       project: q.project,
       status: q.status,
       geldig_tot: q.geldigTot,
+      notitie: q.notitie,
       lines: q.lines,
     })
     .eq('id', q.id)
@@ -281,6 +292,7 @@ export async function saveInvoice(inv: Invoice): Promise<void> {
       klant_id: inv.klantId || null,
       status: inv.status,
       verval: inv.verval,
+      notitie: inv.notitie,
       lines: inv.lines,
     })
     .eq('id', inv.id)

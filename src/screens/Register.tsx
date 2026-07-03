@@ -12,6 +12,8 @@ const emptyProfile: ProfileInput = {
   adres: '',
   postcode: '',
   plaats: '',
+  telefoon: '',
+  website: '',
   iban: '',
   kvk: '',
   btw: '',
@@ -124,6 +126,12 @@ export function Register() {
           </div>
           <Field label="Postcode" value={profile.postcode} onChange={set('postcode')} />
           <Field label="Plaats" value={profile.plaats} onChange={set('plaats')} />
+        </div>
+
+        <div style={groupTitle}>Contact</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <Field label="Telefoon" value={profile.telefoon} onChange={set('telefoon')} placeholder="Optioneel" />
+          <Field label="Website" value={profile.website} onChange={set('website')} placeholder="Optioneel" />
         </div>
 
         <div style={groupTitle}>Zakelijke gegevens</div>

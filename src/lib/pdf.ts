@@ -15,6 +15,19 @@ interface DocInput {
   lines: Quote['lines']
   totalLabel: string
   footerLines: string[]
+  status?: string
+  notitie?: string
+}
+
+const STAMP_RGB: Record<string, [number, number, number]> = {
+  concept: [138, 148, 166],
+  verstuurd: [23, 92, 211],
+  geaccepteerd: [6, 118, 71],
+  geweigerd: [180, 35, 24],
+  verlopen: [181, 71, 8],
+  open: [181, 71, 8],
+  betaald: [6, 118, 71],
+  'te laat': [180, 35, 24],
 }
 
 /**
@@ -44,6 +57,7 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
     me.bedrijf && me.fullName ? me.fullName : '',
     me.adres,
     [me.postcode, me.plaats].filter(Boolean).join(' '),
+    [me.email, me.telefoon, me.website].filter(Boolean).join('  ·  '),
   ].filter(Boolean)
   let sy = y + 15
   for (const line of senderLines) {
@@ -53,7 +67,20 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
   doc.text(input.nr, right, y + 15, { align: 'right' })
   doc.text(input.datum, right, y + 28, { align: 'right' })
 
-  y = Math.max(sy, y + 40) + 20
+  // Status stamp (bordered badge) under the date.
+  const stamp = input.status ? STAMP_RGB[input.status] ?? STAMP_RGB.concept : null
+  if (input.status && stamp) {
+    const label = input.status.toUpperCase()
+    doc.setFont('helvetica', 'bold').setFontSize(9)
+    const boxW = doc.getTextWidth(label) + 12
+    const by = y + 38
+    doc.setDrawColor(...stamp).setLineWidth(1)
+    doc.roundedRect(right - boxW, by, boxW, 15, 3, 3)
+    doc.setTextColor(...stamp)
+    doc.text(label, right - 6, by + 10, { align: 'right' })
+  }
+
+  y = Math.max(sy, y + 56) + 20
 
   // ---- recipient ----
   doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor(...gray)
@@ -109,6 +136,18 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
   doc.setDrawColor(26, 31, 54).setLineWidth(0.8).line(labelX - 30, y - 8, right, y - 8)
   drawTotal(input.totalLabel, euro(totaal), true)
 
+  // ---- optional note ----
+  if (input.notitie && input.notitie.trim()) {
+    y += 22
+    doc.setDrawColor(240, 241, 244).setLineWidth(0.5).line(MARGIN, y - 10, right, y - 10)
+    doc.setFont('helvetica', 'normal').setFontSize(8.5).setTextColor(...gray)
+    doc.text('Notitie', MARGIN, y)
+    y += 13
+    doc.setTextColor(...ink)
+    const noteLines = doc.splitTextToSize(input.notitie.trim(), right - MARGIN) as string[]
+    doc.text(noteLines, MARGIN, y)
+  }
+
   // ---- footer ----
   doc.setFont('helvetica', 'normal').setFontSize(8.5).setTextColor(...gray)
   let fy = 800
@@ -134,6 +173,8 @@ export function quotePdfBase64(quote: Quote, klant: Client | undefined, me: Iden
     me,
     lines: quote.lines,
     totalLabel: 'Totaal',
+    status: quote.status,
+    notitie: quote.notitie,
     footerLines: [senderBlock(me), `Offerte geldig tot ${quote.geldigTot}`],
   })
 }
@@ -148,6 +189,8 @@ export function invoicePdfBase64(invoice: Invoice, klant: Client | undefined, me
     me,
     lines: invoice.lines,
     totalLabel: 'Te betalen',
+    status: invoice.status,
+    notitie: invoice.notitie,
     footerLines: [
       `Gelieve te betalen voor ${invoice.verval} o.v.v. ${invoice.nr}`,
       senderBlock(me),

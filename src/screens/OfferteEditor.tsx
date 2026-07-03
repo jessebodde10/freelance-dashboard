@@ -34,7 +34,7 @@ export function OfferteEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus, deleteQuote, saveState } =
+  const { getQuote, clients, setDocClient, setDocNotitie, setQuoteGeldigTot, setQuoteStatus, deleteQuote, saveState } =
     useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
@@ -131,6 +131,17 @@ export function OfferteEditor() {
 
       <div style={{ fontSize: 12.5, color: colors.muted, fontWeight: 500, marginBottom: 8 }}>Regels</div>
       <LineItemsEditor kind="quote" docId={quote.id} lines={quote.lines} totalLabel="Totaal" />
+
+      <label style={{ display: 'block', marginTop: 20 }}>
+        <span style={fieldLabel}>Notitie (optioneel)</span>
+        <textarea
+          value={quote.notitie}
+          onChange={(e) => setDocNotitie('quote', quote.id, e.target.value)}
+          placeholder="Bijv. voorwaarden, levertijd of een bedankje. Verschijnt onderaan de offerte."
+          rows={3}
+          style={{ ...fieldInput, resize: 'vertical', lineHeight: 1.5, fontFamily: 'inherit' }}
+        />
+      </label>
     </Card>
   )
 
@@ -143,6 +154,8 @@ export function OfferteEditor() {
       klantContact={klant?.contact ?? ''}
       lines={quote.lines}
       totalLabel="Totaal"
+      status={quote.status}
+      notitie={quote.notitie}
       footer={
         <>
           IBAN {me.iban || '—'} · KVK {me.kvk || '—'} · BTW {me.btw || '—'}

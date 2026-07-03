@@ -20,6 +20,8 @@ export interface Profile {
   adres: string
   postcode: string
   plaats: string
+  telefoon: string
+  website: string
   iban: string
   kvk: string
   btw: string
@@ -72,6 +74,7 @@ export interface Quote {
   status: QuoteStatus
   datum: string
   geldigTot: string
+  notitie: string
   lines: LineItem[]
 }
 
@@ -82,6 +85,7 @@ export interface Invoice {
   status: InvoiceStatus
   verval: string
   datum: string
+  notitie: string
   lines: LineItem[]
 }
 

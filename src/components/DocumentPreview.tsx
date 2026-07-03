@@ -7,6 +7,18 @@ import { BrandMark } from './icons'
 
 const GRID = '1fr 40px 62px 66px'
 
+// Rubber-stamp colour per document status.
+const stampColors: Record<string, string> = {
+  concept: '#8a94a6',
+  verstuurd: '#175cd3',
+  geaccepteerd: '#067647',
+  geweigerd: '#b42318',
+  verlopen: '#b54708',
+  open: '#b54708',
+  betaald: '#067647',
+  'te laat': '#b42318',
+}
+
 /** The live PDF-style preview shared by the offerte and factuur editors. */
 export function DocumentPreview({
   docType,
@@ -17,6 +29,8 @@ export function DocumentPreview({
   lines,
   totalLabel,
   footer,
+  status,
+  notitie,
 }: {
   docType: 'OFFERTE' | 'FACTUUR'
   nr: string
@@ -26,10 +40,14 @@ export function DocumentPreview({
   lines: LineItem[]
   totalLabel: string
   footer: ReactNode
+  status?: string
+  notitie?: string
 }) {
   const { subtotaal, btwGroups, totaal } = computeTotals(lines)
   const me = useIdentity()
   const addressLine = [me.postcode, me.plaats].filter(Boolean).join(' ')
+  const contactLine = [me.email, me.telefoon, me.website].filter(Boolean).join('  ·  ')
+  const stampColor = status ? stampColors[status] ?? '#8a94a6' : null
 
   return (
     <div style={{ position: 'sticky', top: 0 }}>
@@ -82,6 +100,12 @@ export function DocumentPreview({
               {me.adres}
               {me.adres && addressLine ? <br /> : null}
               {addressLine}
+              {contactLine ? (
+                <>
+                  <br />
+                  {contactLine}
+                </>
+              ) : null}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -92,6 +116,25 @@ export function DocumentPreview({
             <div className="num" style={{ color: colors.subtle }}>
               {datum}
             </div>
+            {status && stampColor && (
+              <div
+                style={{
+                  display: 'inline-block',
+                  marginTop: 10,
+                  border: `1.5px solid ${stampColor}`,
+                  color: stampColor,
+                  padding: '2px 8px',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  transform: 'rotate(-4deg)',
+                }}
+              >
+                {status}
+              </div>
+            )}
           </div>
         </div>
 
@@ -183,6 +226,23 @@ export function DocumentPreview({
             <span className="num">{euro(totaal)}</span>
           </div>
         </div>
+
+        {notitie && notitie.trim() && (
+          <div
+            style={{
+              marginTop: 24,
+              paddingTop: 12,
+              borderTop: `1px solid ${colors.borderSoft}`,
+              fontSize: 10.5,
+              color: colors.text,
+              lineHeight: 1.6,
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            <div style={{ color: colors.subtle, marginBottom: 3 }}>Notitie</div>
+            {notitie}
+          </div>
+        )}
 
         <div
           style={{

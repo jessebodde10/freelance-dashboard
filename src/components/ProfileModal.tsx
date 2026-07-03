@@ -24,6 +24,8 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
     adres: profile?.adres ?? '',
     postcode: profile?.postcode ?? '',
     plaats: profile?.plaats ?? '',
+    telefoon: profile?.telefoon ?? '',
+    website: profile?.website ?? '',
     iban: profile?.iban ?? '',
     kvk: profile?.kvk ?? '',
     btw: profile?.btw ?? '',
@@ -82,6 +84,12 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
             <Field label="Postcode" value={form.postcode} onChange={set('postcode')} />
             <Field label="Plaats" value={form.plaats} onChange={set('plaats')} />
           </div>
+        </div>
+
+        <div style={groupLabel}>Contact</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Telefoon" value={form.telefoon} onChange={set('telefoon')} />
+          <Field label="Website" value={form.website} onChange={set('website')} />
         </div>
 
         <div style={groupLabel}>Zakelijk</div>

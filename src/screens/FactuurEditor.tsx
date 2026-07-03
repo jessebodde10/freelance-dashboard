@@ -33,8 +33,16 @@ export function FactuurEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getInvoice, clients, setDocClient, setInvoiceVerval, setInvoiceStatus, deleteInvoice, saveState } =
-    useStore()
+  const {
+    getInvoice,
+    clients,
+    setDocClient,
+    setDocNotitie,
+    setInvoiceVerval,
+    setInvoiceStatus,
+    deleteInvoice,
+    saveState,
+  } = useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
 
@@ -125,6 +133,17 @@ export function FactuurEditor() {
       </div>
 
       <LineItemsEditor kind="invoice" docId={invoice.id} lines={invoice.lines} totalLabel="Te betalen" />
+
+      <label style={{ display: 'block', marginTop: 20 }}>
+        <span style={fieldLabel}>Notitie (optioneel)</span>
+        <textarea
+          value={invoice.notitie}
+          onChange={(e) => setDocNotitie('invoice', invoice.id, e.target.value)}
+          placeholder="Bijv. betaalinstructies of een bedankje. Verschijnt onderaan de factuur."
+          rows={3}
+          style={{ ...fieldInput, resize: 'vertical', lineHeight: 1.5, fontFamily: 'inherit' }}
+        />
+      </label>
     </Card>
   )
 
@@ -137,6 +156,8 @@ export function FactuurEditor() {
       klantContact={klant?.contact ?? ''}
       lines={invoice.lines}
       totalLabel="Te betalen"
+      status={invoice.status}
+      notitie={invoice.notitie}
       footer={
         <>
           Gelieve te betalen voor {invoice.verval} o.v.v. {invoice.nr}
