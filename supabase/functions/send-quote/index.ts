@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     if (userErr || !userData.user) return json({ error: 'Niet ingelogd' }, 401)
     const user = userData.user
 
-    const { quoteId, pdfBase64 } = await req.json()
+    const { quoteId, pdfBase64, subject, message } = await req.json()
     if (!quoteId || !pdfBase64) return json({ error: 'quoteId en pdfBase64 zijn verplicht' }, 400)
 
     // Look up the quote (RLS guarantees ownership) and its client.
@@ -79,13 +79,19 @@ Deno.serve(async (req) => {
     if (!apiKey) return json({ error: 'RESEND_API_KEY ontbreekt op de server' }, 500)
     const from = Deno.env.get('RESEND_FROM') ?? 'Kompas <onboarding@resend.dev>'
 
-    const html = `
+    // Use the user's own subject/message when provided; otherwise a default.
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const html = message
+      ? `<div style="font-family:Arial,sans-serif;font-size:14px;color:#1a1f36;line-height:1.6">${esc(String(message)).replace(/\n/g, '<br/>')}</div>`
+      : `
       <div style="font-family:Arial,sans-serif;font-size:14px;color:#1a1f36;line-height:1.6">
         <p>Beste ${klant.contact || klant.bedrijf},</p>
         <p>In de bijlage vind je offerte <strong>${quote.nr}</strong> van ${senderName}.</p>
         <p>Heb je vragen? Beantwoord gerust deze e-mail.</p>
         <p>Met vriendelijke groet,<br/>${senderName}</p>
       </div>`
+    const subj = (subject && String(subject).trim()) || `Offerte ${quote.nr} van ${senderName}`
 
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -93,7 +99,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from,
         to: [klant.email],
-        subject: `Offerte ${quote.nr} van ${senderName}`,
+        subject: subj,
         html,
         attachments: [{ filename: `Offerte-${quote.nr}.pdf`, content: pdfBase64 }],
       }),

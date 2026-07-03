@@ -286,3 +286,14 @@ export async function saveInvoice(inv: Invoice): Promise<void> {
     .eq('id', inv.id)
   if (error) throw error
 }
+
+// ---- deletes ----
+export async function deleteQuote(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('quotes').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteInvoice(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('invoices').delete().eq('id', id)
+  if (error) throw error
+}

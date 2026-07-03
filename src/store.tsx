@@ -71,6 +71,8 @@ interface Store {
 
   createDraftQuote: () => Promise<string>
   createDraftInvoice: () => Promise<string>
+  deleteQuote: (id: string) => Promise<void>
+  deleteInvoice: (id: string) => Promise<void>
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -320,6 +322,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return created.id
   }, [userId, clients])
 
+  const deleteQuote = useCallback(async (docId: string) => {
+    await db.deleteQuote(docId)
+    savers.current.delete(`quote:${docId}`)
+    setQuotes((qs) => qs.filter((q) => q.id !== docId))
+  }, [])
+
+  const deleteInvoice = useCallback(async (docId: string) => {
+    await db.deleteInvoice(docId)
+    savers.current.delete(`invoice:${docId}`)
+    setInvoices((is) => is.filter((i) => i.id !== docId))
+  }, [])
+
   const createDraftInvoice = useCallback(async () => {
     if (!userId) throw new Error('Niet ingelogd')
     const draft: Omit<Invoice, 'id'> = {
@@ -367,6 +381,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setInvoiceStatus,
       createDraftQuote,
       createDraftInvoice,
+      deleteQuote,
+      deleteInvoice,
     }),
     [
       loading,
@@ -394,6 +410,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setInvoiceStatus,
       createDraftQuote,
       createDraftInvoice,
+      deleteQuote,
+      deleteInvoice,
     ],
   )
 

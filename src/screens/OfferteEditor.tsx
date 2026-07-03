@@ -11,6 +11,8 @@ import { LineItemsEditor } from '../components/LineItemsEditor'
 import { DocumentPreview } from '../components/DocumentPreview'
 import { DownloadIcon } from '../components/icons'
 import { celebrate } from '../components/Celebration'
+import { SendEmailModal } from '../components/SendEmailModal'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 // Supabase invokes edge functions by their URL slug. The dashboard sometimes
 // auto-generates a random slug (e.g. "hyper-task") instead of "send-quote", so
@@ -32,53 +34,50 @@ export function OfferteEditor() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus, saveState } = useStore()
+  const { getQuote, clients, setDocClient, setQuoteGeldigTot, setQuoteStatus, deleteQuote, saveState } =
+    useStore()
   const { clientById } = useLookups()
   const me = useIdentity()
 
-  const [sending, setSending] = useState(false)
-  const [sendError, setSendError] = useState('')
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const quote = id ? getQuote(id) : undefined
   if (!quote) return <Navigate to="/offertes" replace />
 
   const klant = clientById(quote.klantId)
 
-  async function verstuur() {
-    if (!quote) return
-    setSendError('')
-    if (!klant) {
-      setSendError('Koppel eerst een klant aan de offerte.')
-      return
-    }
-    if (!klant.email) {
-      setSendError('Deze klant heeft geen e-mailadres. Voeg er een toe bij de klant.')
-      return
-    }
-    setSending(true)
-    try {
-      const { quotePdfBase64 } = await import('../lib/pdf')
-      const pdfBase64 = await quotePdfBase64(quote, klant, me)
-      const { error } = await requireSupabase().functions.invoke(SEND_QUOTE_FN, {
-        body: { quoteId: quote.id, pdfBase64 },
-      })
-      if (error) {
-        let msg = error.message
-        try {
-          const body = await (error as { context?: Response }).context?.json?.()
-          if (body?.error) msg = body.error
-        } catch {
-          /* keep default message */
-        }
-        throw new Error(msg)
+  const defaultMessage =
+    `Beste ${klant?.contact || klant?.bedrijf || 'klant'},\n\n` +
+    `In de bijlage vind je offerte ${quote.nr}.\n\n` +
+    `Met vriendelijke groet,\n${me.senderName}`
+
+  // Runs the actual send from the compose dialog; throws on failure.
+  async function sendQuoteMail(subject: string, message: string) {
+    if (!quote || !klant?.email) throw new Error('Deze klant heeft geen e-mailadres.')
+    const { quotePdfBase64 } = await import('../lib/pdf')
+    const pdfBase64 = await quotePdfBase64(quote, klant, me)
+    const { error } = await requireSupabase().functions.invoke(SEND_QUOTE_FN, {
+      body: { quoteId: quote.id, pdfBase64, subject, message },
+    })
+    if (error) {
+      let msg = error.message
+      try {
+        const body = await (error as { context?: Response }).context?.json?.()
+        if (body?.error) msg = body.error
+      } catch {
+        /* keep default message */
       }
-      setQuoteStatus(quote.id, 'verstuurd')
-      celebrate('Offerte verzonden')
-    } catch (e) {
-      setSendError(e instanceof Error ? e.message : 'Versturen mislukt')
-    } finally {
-      setSending(false)
+      throw new Error(msg)
     }
+    setQuoteStatus(quote.id, 'verstuurd')
+    celebrate('Offerte verzonden')
+  }
+
+  async function remove() {
+    if (!quote) return
+    await deleteQuote(quote.id)
+    navigate('/offertes')
   }
 
   const form = (
@@ -174,19 +173,34 @@ export function OfferteEditor() {
           <Pill status={quote.status} />
           <SaveIndicator state={saveState} />
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '9px 14px',
+              background: 'transparent',
+              color: colors.negative,
+              border: `1px solid ${colors.border}`,
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Verwijderen
+          </button>
           <SecondaryButton onClick={() => window.print()}>
             <DownloadIcon />
             PDF-export
           </SecondaryButton>
           {quote.status === 'concept' && (
             <>
-              <SecondaryButton onClick={() => setQuoteStatus(quote.id, 'verstuurd')} disabled={sending}>
+              <SecondaryButton onClick={() => setQuoteStatus(quote.id, 'verstuurd')}>
                 Markeer als verstuurd
               </SecondaryButton>
-              <PrimaryButton onClick={verstuur} disabled={sending}>
-                {sending ? 'Versturen…' : 'Versturen per e-mail'}
-              </PrimaryButton>
+              <PrimaryButton onClick={() => setComposeOpen(true)}>Versturen per e-mail</PrimaryButton>
             </>
           )}
           {quote.status === 'verstuurd' && (
@@ -197,20 +211,23 @@ export function OfferteEditor() {
         </div>
       </div>
 
-      {sendError && (
-        <div
-          style={{
-            background: 'rgba(240,68,56,0.10)',
-            color: colors.negative,
-            border: `1px solid rgba(240,68,56,0.30)`,
-            borderRadius: 9,
-            padding: '10px 14px',
-            fontSize: 13.5,
-            marginBottom: 16,
-          }}
-        >
-          {sendError}
-        </div>
+      {composeOpen && (
+        <SendEmailModal
+          title="Offerte versturen"
+          to={klant?.email}
+          defaultSubject={`Offerte ${quote.nr} van ${me.senderName}`}
+          defaultMessage={defaultMessage}
+          onSend={sendQuoteMail}
+          onClose={() => setComposeOpen(false)}
+        />
+      )}
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Offerte verwijderen"
+          message={`Weet je zeker dat je offerte ${quote.nr} definitief wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`}
+          onConfirm={remove}
+          onClose={() => setConfirmDelete(false)}
+        />
       )}
 
       <div

@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     if (userErr || !userData.user) return json({ error: 'Niet ingelogd' }, 401)
     const user = userData.user
 
-    const { invoiceId, pdfBase64 } = await req.json()
+    const { invoiceId, pdfBase64, subject, message } = await req.json()
     if (!invoiceId || !pdfBase64) return json({ error: 'invoiceId en pdfBase64 zijn verplicht' }, 400)
 
     // Look up the invoice (RLS guarantees ownership) and its client.
@@ -79,13 +79,19 @@ Deno.serve(async (req) => {
     if (!apiKey) return json({ error: 'RESEND_API_KEY ontbreekt op de server' }, 500)
     const from = Deno.env.get('RESEND_FROM') ?? 'Kompas <onboarding@resend.dev>'
 
-    const html = `
+    // Use the user's own subject/message when provided; otherwise a default.
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const html = message
+      ? `<div style="font-family:Arial,sans-serif;font-size:14px;color:#1a1f36;line-height:1.6">${esc(String(message)).replace(/\n/g, '<br/>')}</div>`
+      : `
       <div style="font-family:Arial,sans-serif;font-size:14px;color:#1a1f36;line-height:1.6">
         <p>Beste ${klant.contact || klant.bedrijf},</p>
         <p>In de bijlage vind je factuur <strong>${invoice.nr}</strong> van ${senderName}.</p>
         <p>Je vindt de betaalgegevens en vervaldatum op de factuur. Heb je vragen? Beantwoord gerust deze e-mail.</p>
         <p>Met vriendelijke groet,<br/>${senderName}</p>
       </div>`
+    const subj = (subject && String(subject).trim()) || `Factuur ${invoice.nr} van ${senderName}`
 
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -93,7 +99,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from,
         to: [klant.email],
-        subject: `Factuur ${invoice.nr} van ${senderName}`,
+        subject: subj,
         html,
         attachments: [{ filename: `Factuur-${invoice.nr}.pdf`, content: pdfBase64 }],
       }),
