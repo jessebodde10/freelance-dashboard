@@ -82,9 +82,12 @@ export function Sidebar() {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 20px' }}>
         <BrandMark />
-        <span style={{ fontWeight: 600, fontSize: 15.5, letterSpacing: '-0.01em' }}>
-          Freezo
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          <span style={{ fontWeight: 600, fontSize: 15.5, letterSpacing: '-0.01em' }}>
+            Freezo
+          </span>
+          <span style={{ fontSize: 11, color: colors.subtle }}>Jouw freelance dashboard</span>
+        </div>
       </div>
 
       <button

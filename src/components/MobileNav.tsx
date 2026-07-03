@@ -85,12 +85,15 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'space-between',
             padding: '4px 6px 12px',
           }}
         >
-          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+            <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
+            <span style={{ fontSize: 11, color: colors.subtle }}>Jouw freelance dashboard</span>
+          </div>
           <button
             onClick={onClose}
             aria-label="Menu sluiten"

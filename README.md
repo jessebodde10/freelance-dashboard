@@ -1,4 +1,4 @@
-# Freezo — Freelancer dashboard
+# Freezo — Jouw freelance dashboard
 
 A React implementation of the "Freezo" freelancer dashboard design (opdrachten,
 klanten, offertes en facturen voor ZZP'ers). Built from the Claude Design
