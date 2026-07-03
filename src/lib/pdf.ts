@@ -114,8 +114,7 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
     doc.text(String(l.qty), colQty, y, { align: 'right' })
     doc.text(euro(l.price), colPrice, y, { align: 'right' })
     doc.text(euro(l.qty * l.price), colAmount, y, { align: 'right' })
-    y += Math.max(descLines.length, 1) * 13 + 9
-    doc.setDrawColor(240, 241, 244).setLineWidth(0.5).line(MARGIN, y - 7, right, y - 7)
+    y += Math.max(descLines.length, 1) * 13 + 10
   }
 
   // ---- totals ----
@@ -132,8 +131,9 @@ async function buildPdfBase64(input: DocInput): Promise<string> {
   }
   drawTotal('Subtotaal', euro(subtotaal))
   for (const b of btwGroups) drawTotal(`BTW ${b.pct}%`, euro(b.bedrag))
-  y += 5
-  doc.setDrawColor(26, 31, 54).setLineWidth(0.8).line(labelX - 30, y - 10, right, y - 10)
+  y += 8
+  doc.setDrawColor(26, 31, 54).setLineWidth(0.8).line(labelX - 30, y, right, y)
+  y += 22
   drawTotal(input.totalLabel, euro(totaal), true)
 
   // ---- optional note ----

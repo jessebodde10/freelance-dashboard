@@ -170,8 +170,7 @@ export function DocumentPreview({
               display: 'grid',
               gridTemplateColumns: GRID,
               gap: 6,
-              padding: '11px 0',
-              borderBottom: `1px solid ${colors.borderSoft}`,
+              padding: '9px 0',
               fontSize: 11,
             }}
           >
@@ -217,8 +216,8 @@ export function DocumentPreview({
               display: 'flex',
               justifyContent: 'space-between',
               fontWeight: 700,
-              marginTop: 4,
-              paddingTop: 12,
+              marginTop: 8,
+              paddingTop: 18,
               borderTop: '1px solid #1a1f36',
               fontSize: 13,
             }}
