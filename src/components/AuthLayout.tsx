@@ -27,9 +27,12 @@ export function AuthLayout({
       }}
     >
       <div style={{ width: '100%', maxWidth: wide ? 520 : 400 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, justifyContent: 'center' }}>
-          <BrandMark />
-          <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BrandMark />
+            <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
+          </div>
+          <span style={{ fontSize: 13, color: colors.muted }}>Jouw freelance dashboard</span>
         </div>
         <div
           style={{
