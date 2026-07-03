@@ -7,7 +7,7 @@
 //
 // Deploy:   supabase functions deploy send-quote
 // Secrets:  supabase secrets set RESEND_API_KEY=re_xxx
-//           supabase secrets set RESEND_FROM="Kompas <onboarding@resend.dev>"   (optional)
+//           supabase secrets set RESEND_FROM="Freezo <onboarding@resend.dev>"   (optional)
 //
 // Note: without a verified domain in Resend you can only send from
 // onboarding@resend.dev and only to your own Resend account e-mail. Verify a
@@ -73,11 +73,11 @@ Deno.serve(async (req) => {
     const senderName =
       profile?.bedrijf ||
       [profile?.voornaam, profile?.achternaam].filter(Boolean).join(' ') ||
-      'Kompas'
+      'Freezo'
 
     const apiKey = Deno.env.get('RESEND_API_KEY')
     if (!apiKey) return json({ error: 'RESEND_API_KEY ontbreekt op de server' }, 500)
-    const from = Deno.env.get('RESEND_FROM') ?? 'Kompas <onboarding@resend.dev>'
+    const from = Deno.env.get('RESEND_FROM') ?? 'Freezo <onboarding@resend.dev>'
 
     // Use the user's own subject/message when provided; otherwise a default.
     const esc = (s: string) =>

@@ -90,7 +90,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
             padding: '4px 6px 12px',
           }}
         >
-          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em' }}>Kompas</span>
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
           <button
             onClick={onClose}
             aria-label="Menu sluiten"

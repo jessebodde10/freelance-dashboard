@@ -1,4 +1,4 @@
--- Kompas — database schema, row-level security and profile trigger.
+-- Freezo — database schema, row-level security and profile trigger.
 -- Run this once in the Supabase SQL editor (or via the CLI) for your project.
 
 -- ------------------------------------------------------------------ profiles

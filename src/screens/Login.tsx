@@ -32,7 +32,7 @@ export function Login() {
   return (
     <AuthLayout
       title="Inloggen"
-      subtitle="Welkom terug. Log in op je Kompas-account."
+      subtitle="Welkom terug. Log in op je Freezo-account."
       footer={
         <>
           Nog geen account?{' '}

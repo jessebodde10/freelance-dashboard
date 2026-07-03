@@ -1,4 +1,4 @@
-// Domain models for the Kompas freelancer dashboard.
+// Domain models for the Freezo freelancer dashboard.
 
 export type ProjectStatus = 'concept' | 'lopend' | 'afgerond' | 'gefactureerd'
 export type QuoteStatus =

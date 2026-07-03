@@ -38,7 +38,7 @@ function useMobileTitle(): string {
     case 'facturen':
       return id ? 'Factuur' : 'Facturen'
     default:
-      return 'Kompas'
+      return 'Freezo'
   }
 }
 

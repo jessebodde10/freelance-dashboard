@@ -1,6 +1,6 @@
-# Kompas — Freelancer dashboard
+# Freezo — Freelancer dashboard
 
-A React implementation of the "Kompas" freelancer dashboard design (opdrachten,
+A React implementation of the "Freezo" freelancer dashboard design (opdrachten,
 klanten, offertes en facturen voor ZZP'ers). Built from the Claude Design
 handoff bundle in `../project`.
 

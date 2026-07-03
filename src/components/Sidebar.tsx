@@ -83,7 +83,7 @@ export function Sidebar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 20px' }}>
         <BrandMark />
         <span style={{ fontWeight: 600, fontSize: 15.5, letterSpacing: '-0.01em' }}>
-          Kompas
+          Freezo
         </span>
       </div>
 

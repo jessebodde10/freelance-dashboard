@@ -29,7 +29,7 @@ export function AuthLayout({
       <div style={{ width: '100%', maxWidth: wide ? 520 : 400 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, justifyContent: 'center' }}>
           <BrandMark />
-          <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em' }}>Kompas</span>
+          <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
         </div>
         <div
           style={{
