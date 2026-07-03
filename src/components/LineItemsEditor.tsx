@@ -22,94 +22,186 @@ export function LineItemsEditor({
   docId,
   lines,
   totalLabel,
+  isMobile,
 }: {
   kind: 'quote' | 'invoice'
   docId: string
   lines: LineItem[]
   totalLabel: string
+  isMobile?: boolean
 }) {
   const { addLine, updateLine, removeLine } = useStore()
   const { subtotaal, btwGroups, totaal } = computeTotals(lines)
 
+  const miniLabel = { fontSize: 10.5, color: colors.faint, display: 'block', marginBottom: 3 } as const
+
   return (
     <div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: GRID,
-          gap: 8,
-          padding: '0 2px 6px',
-          fontSize: 11.5,
-          color: colors.faint,
-        }}
-      >
-        <span>Omschrijving</span>
-        <span style={{ textAlign: 'right' }}>Aantal</span>
-        <span style={{ textAlign: 'right' }}>Prijs</span>
-        <span style={{ textAlign: 'right' }}>BTW</span>
-        <span style={{ textAlign: 'right' }}>Bedrag</span>
-        <span />
-      </div>
-
-      {lines.map((l) => (
-        <div
-          key={l.id}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: GRID,
-            gap: 8,
-            alignItems: 'center',
-            marginBottom: 8,
-          }}
-        >
-          <input
-            value={l.desc}
-            onChange={(e) => updateLine(kind, docId, l.id, 'desc', e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            value={l.qty}
-            type="number"
-            className="num"
-            onChange={(e) => updateLine(kind, docId, l.id, 'qty', e.target.value)}
-            style={numInput}
-          />
-          <input
-            value={l.price}
-            type="number"
-            className="num"
-            onChange={(e) => updateLine(kind, docId, l.id, 'price', e.target.value)}
-            style={numInput}
-          />
-          <select
-            value={l.vat}
-            className="num"
-            onChange={(e) => updateLine(kind, docId, l.id, 'vat', e.target.value)}
-            style={{ ...numInput, padding: '8px 4px', background: colors.surface }}
-          >
-            <option value="21">21%</option>
-            <option value="9">9%</option>
-            <option value="0">0%</option>
-          </select>
-          <span className="num" style={{ textAlign: 'right', fontSize: 13, fontWeight: 500 }}>
-            {euro(l.qty * l.price)}
-          </span>
-          <button
-            onClick={() => removeLine(kind, docId, l.id)}
-            aria-label="Regel verwijderen"
+      {isMobile ? (
+        lines.map((l) => (
+          <div
+            key={l.id}
             style={{
-              border: 'none',
-              background: 'none',
-              color: colors.faint,
-              cursor: 'pointer',
-              fontSize: 16,
-              lineHeight: 1,
+              border: `1px solid ${colors.border}`,
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 10,
             }}
           >
-            ×
-          </button>
-        </div>
-      ))}
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 10 }}>
+              <input
+                value={l.desc}
+                placeholder="Omschrijving"
+                onChange={(e) => updateLine(kind, docId, l.id, 'desc', e.target.value)}
+                style={{ ...inputStyle, flex: 1 }}
+              />
+              <button
+                onClick={() => removeLine(kind, docId, l.id)}
+                aria-label="Regel verwijderen"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  color: colors.faint,
+                  cursor: 'pointer',
+                  fontSize: 18,
+                  lineHeight: 1,
+                  padding: '8px 2px',
+                  flex: 'none',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <label>
+                <span style={miniLabel}>Aantal</span>
+                <input
+                  value={l.qty}
+                  type="number"
+                  className="num"
+                  onChange={(e) => updateLine(kind, docId, l.id, 'qty', e.target.value)}
+                  style={numInput}
+                />
+              </label>
+              <label>
+                <span style={miniLabel}>Prijs</span>
+                <input
+                  value={l.price}
+                  type="number"
+                  className="num"
+                  onChange={(e) => updateLine(kind, docId, l.id, 'price', e.target.value)}
+                  style={numInput}
+                />
+              </label>
+              <label>
+                <span style={miniLabel}>BTW</span>
+                <select
+                  value={l.vat}
+                  className="num"
+                  onChange={(e) => updateLine(kind, docId, l.id, 'vat', e.target.value)}
+                  style={{ ...numInput, textAlign: 'left', background: colors.surface }}
+                >
+                  <option value="21">21%</option>
+                  <option value="9">9%</option>
+                  <option value="0">0%</option>
+                </select>
+              </label>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                paddingTop: 8,
+                borderTop: `1px solid ${colors.borderSoft}`,
+                fontSize: 13,
+              }}
+            >
+              <span style={{ color: colors.subtle }}>Bedrag</span>
+              <span className="num" style={{ fontWeight: 600 }}>{euro(l.qty * l.price)}</span>
+            </div>
+          </div>
+        ))
+      ) : (
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: GRID,
+              gap: 8,
+              padding: '0 2px 6px',
+              fontSize: 11.5,
+              color: colors.faint,
+            }}
+          >
+            <span>Omschrijving</span>
+            <span style={{ textAlign: 'right' }}>Aantal</span>
+            <span style={{ textAlign: 'right' }}>Prijs</span>
+            <span style={{ textAlign: 'right' }}>BTW</span>
+            <span style={{ textAlign: 'right' }}>Bedrag</span>
+            <span />
+          </div>
+
+          {lines.map((l) => (
+            <div
+              key={l.id}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: GRID,
+                gap: 8,
+                alignItems: 'center',
+                marginBottom: 8,
+              }}
+            >
+              <input
+                value={l.desc}
+                onChange={(e) => updateLine(kind, docId, l.id, 'desc', e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                value={l.qty}
+                type="number"
+                className="num"
+                onChange={(e) => updateLine(kind, docId, l.id, 'qty', e.target.value)}
+                style={numInput}
+              />
+              <input
+                value={l.price}
+                type="number"
+                className="num"
+                onChange={(e) => updateLine(kind, docId, l.id, 'price', e.target.value)}
+                style={numInput}
+              />
+              <select
+                value={l.vat}
+                className="num"
+                onChange={(e) => updateLine(kind, docId, l.id, 'vat', e.target.value)}
+                style={{ ...numInput, padding: '8px 4px', background: colors.surface }}
+              >
+                <option value="21">21%</option>
+                <option value="9">9%</option>
+                <option value="0">0%</option>
+              </select>
+              <span className="num" style={{ textAlign: 'right', fontSize: 13, fontWeight: 500 }}>
+                {euro(l.qty * l.price)}
+              </span>
+              <button
+                onClick={() => removeLine(kind, docId, l.id)}
+                aria-label="Regel verwijderen"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  color: colors.faint,
+                  cursor: 'pointer',
+                  fontSize: 16,
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </>
+      )}
 
       <button
         onClick={() => addLine(kind, docId)}

@@ -8,6 +8,10 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* Belt-and-braces: a stray fixed-width child should never let the whole
+     page pan sideways on mobile — it should overflow its own container
+     (scrollable there) instead of the viewport. */
+  overflow-x: hidden;
 }
 
 /* Neutral palette as CSS variables so the whole UI can switch themes.

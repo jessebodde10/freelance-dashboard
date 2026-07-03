@@ -132,7 +132,7 @@ export function FactuurEditor() {
         </label>
       </div>
 
-      <LineItemsEditor kind="invoice" docId={invoice.id} lines={invoice.lines} totalLabel="Te betalen" />
+      <LineItemsEditor kind="invoice" docId={invoice.id} lines={invoice.lines} totalLabel="Te betalen" isMobile={isMobile} />
 
       <label style={{ display: 'block', marginTop: 20 }}>
         <span style={fieldLabel}>Notitie (optioneel)</span>

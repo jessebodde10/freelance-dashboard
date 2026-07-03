@@ -130,7 +130,7 @@ export function OfferteEditor() {
       </div>
 
       <div style={{ fontSize: 12.5, color: colors.muted, fontWeight: 500, marginBottom: 8 }}>Regels</div>
-      <LineItemsEditor kind="quote" docId={quote.id} lines={quote.lines} totalLabel="Totaal" />
+      <LineItemsEditor kind="quote" docId={quote.id} lines={quote.lines} totalLabel="Totaal" isMobile={isMobile} />
 
       <label style={{ display: 'block', marginTop: 20 }}>
         <span style={fieldLabel}>Notitie (optioneel)</span>

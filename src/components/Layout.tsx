@@ -146,7 +146,7 @@ function MobileLayout() {
         </div>
       </header>
 
-      <main style={{ flex: 1, overflowY: 'auto', padding: '16px 15px 24px' }}>
+      <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px 15px 24px' }}>
         <ContentGate>
           <Suspense fallback={<LoadingSkeleton />}>
             <Outlet context={{ isMobile: true }} />
