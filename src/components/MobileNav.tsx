@@ -1,6 +1,8 @@
 import { useEffect, type CSSProperties } from 'react'
 import { NavLink } from 'react-router-dom'
 import { accent, colors } from '../theme'
+import { useAuth } from '../auth'
+import { useIdentity } from '../hooks/useIdentity'
 import {
   BtwIcon,
   DashboardIcon,
@@ -37,6 +39,8 @@ const linkStyle = (active: boolean): CSSProperties => ({
 })
 
 export function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { signOut } = useAuth()
+  const identity = useIdentity()
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -132,6 +136,87 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
               )}
             </NavLink>
           ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: 'auto',
+            paddingTop: 12,
+            borderTop: `1px solid ${colors.borderSoft}`,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '6px 8px 10px',
+            }}
+          >
+            <div
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                background: '#e9eafe',
+                color: '#4338ca',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 600,
+                fontSize: 12,
+                flex: 'none',
+              }}
+            >
+              {identity.initials}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontWeight: 600,
+                  fontSize: 13.5,
+                  lineHeight: 1.2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  color: colors.ink,
+                }}
+              >
+                {identity.displayName}
+              </div>
+              <div style={{ fontSize: 12, color: colors.subtle, lineHeight: 1.3 }}>
+                {identity.displaySub}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              onClose()
+              signOut()
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              width: '100%',
+              padding: '11px 14px',
+              borderRadius: 10,
+              border: 'none',
+              background: 'transparent',
+              color: colors.text,
+              fontSize: 15,
+              fontWeight: 500,
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M7 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3" />
+              <path d="M11.5 12.5 15 9l-3.5-3.5" />
+              <path d="M15 9H7" />
+            </svg>
+            Uitloggen
+          </button>
         </div>
       </nav>
     </>
