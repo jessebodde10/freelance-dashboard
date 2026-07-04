@@ -292,7 +292,10 @@ function DesktopDashboard() {
                   style={{
                     position: 'absolute',
                     bottom: `calc(${m.h} + 8px)`,
-                    background: colors.ink,
+                    // Fixed dark bubble regardless of theme: colors.ink flips
+                    // to a light tone in dark mode, which would pair badly
+                    // with the white text below.
+                    background: '#1a1f36',
                     color: '#fff',
                     fontSize: 11.5,
                     fontWeight: 600,
