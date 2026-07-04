@@ -162,6 +162,10 @@ export function Register() {
         >
           {busy ? 'Bezig…' : 'Account aanmaken'}
         </button>
+        <p style={{ margin: '14px 0 0', fontSize: 12.5, color: colors.subtle, textAlign: 'center' }}>
+          Door een account aan te maken ga je akkoord met ons{' '}
+          <Link to="/privacy" style={{ color: accent.ink }}>privacybeleid en de voorwaarden</Link>.
+        </p>
       </form>
     </AuthLayout>
   )

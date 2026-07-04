@@ -744,6 +744,10 @@ function MarketingFooter() {
       >
         Contact
       </button>
+      <span aria-hidden="true">·</span>
+      <Link to="/privacy" style={{ color: colors.subtle, fontSize: 12.5, textDecoration: 'underline' }}>
+        Privacy &amp; voorwaarden
+      </Link>
       {showContact && <ContactModal onClose={() => setShowContact(false)} />}
     </footer>
   )

@@ -9,6 +9,7 @@ import { SetupNeeded } from './screens/SetupNeeded'
 const Marketing = lazy(() => import('./screens/Marketing').then((m) => ({ default: m.Marketing })))
 const Login = lazy(() => import('./screens/Login').then((m) => ({ default: m.Login })))
 const Register = lazy(() => import('./screens/Register').then((m) => ({ default: m.Register })))
+const Privacy = lazy(() => import('./screens/Privacy').then((m) => ({ default: m.Privacy })))
 const Dashboard = lazy(() => import('./screens/Dashboard').then((m) => ({ default: m.Dashboard })))
 const OpdrachtenList = lazy(() =>
   import('./screens/OpdrachtenList').then((m) => ({ default: m.OpdrachtenList })),
@@ -39,6 +40,7 @@ export function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route
         element={
