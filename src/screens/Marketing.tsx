@@ -553,7 +553,7 @@ function Faq({ isMobile }: { isMobile: boolean }) {
     },
   ]
   return (
-    <section style={{ maxWidth: 720, margin: '0 auto', padding: isMobile ? '0 20px 48px' : '0 32px 72px' }}>
+    <section style={{ maxWidth: 720, margin: '0 auto', padding: isMobile ? '48px 20px' : '72px 32px' }}>
       <h2
         style={{
           textAlign: 'center',
