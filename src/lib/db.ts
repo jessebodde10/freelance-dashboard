@@ -346,6 +346,14 @@ export async function deleteClient(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function saveClient(c: Client): Promise<void> {
+  const { error } = await requireSupabase()
+    .from('clients')
+    .update({ bedrijf: c.bedrijf, contact: c.contact, email: c.email, plaats: c.plaats })
+    .eq('id', c.id)
+  if (error) throw error
+}
+
 // ---- expenses ----
 export async function insertExpense(userId: string, e: Omit<Expense, 'id'>): Promise<Expense> {
   const { data, error } = await requireSupabase()

@@ -6,17 +6,20 @@ import { Modal } from './Modal'
 import { AuthError, Field } from './AuthLayout'
 
 export function NewClientModal({
+  client,
   onClose,
   onCreated,
 }: {
+  client?: Client
   onClose: () => void
   onCreated?: (c: Client) => void
 }) {
-  const { addClient } = useStore()
-  const [bedrijf, setBedrijf] = useState('')
-  const [contact, setContact] = useState('')
-  const [email, setEmail] = useState('')
-  const [plaats, setPlaats] = useState('')
+  const { addClient, updateClient } = useStore()
+  const isEdit = !!client
+  const [bedrijf, setBedrijf] = useState(client?.bedrijf ?? '')
+  const [contact, setContact] = useState(client?.contact ?? '')
+  const [email, setEmail] = useState(client?.email ?? '')
+  const [plaats, setPlaats] = useState(client?.plaats ?? '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -29,8 +32,12 @@ export function NewClientModal({
     setBusy(true)
     setError('')
     try {
-      const created = await addClient({ bedrijf: bedrijf.trim(), contact, email, plaats })
-      onCreated?.(created)
+      if (isEdit) {
+        await updateClient({ ...client, bedrijf: bedrijf.trim(), contact, email, plaats })
+      } else {
+        const created = await addClient({ bedrijf: bedrijf.trim(), contact, email, plaats })
+        onCreated?.(created)
+      }
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Opslaan mislukt')
@@ -40,7 +47,7 @@ export function NewClientModal({
   }
 
   return (
-    <Modal title="Nieuwe klant" onClose={onClose}>
+    <Modal title={isEdit ? 'Klantgegevens bewerken' : 'Nieuwe klant'} onClose={onClose}>
       <form onSubmit={submit}>
         <AuthError message={error} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -66,7 +73,7 @@ export function NewClientModal({
             opacity: busy ? 0.7 : 1,
           }}
         >
-          {busy ? 'Bezig…' : 'Klant opslaan'}
+          {busy ? 'Bezig…' : isEdit ? 'Wijzigingen opslaan' : 'Klant opslaan'}
         </button>
       </form>
     </Modal>

@@ -4,9 +4,10 @@ import { dutchNum, euro, euro0, initials, subtotalOf, totalOf } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { BackLink, Card } from '../components/ui'
+import { BackLink, Card, SecondaryButton } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { NewClientModal } from '../components/NewClientModal'
 
 const sectionH2 = { margin: 0, fontSize: 14.5, fontWeight: 600 } as const
 
@@ -17,6 +18,7 @@ export function KlantDetail() {
   const { clients, deleteClient } = useStore()
   const { invoicesOf, projectsOf, quotesOf } = useLookups()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   const c = clients.find((x) => x.id === id)
   if (!c) return <Navigate to="/klanten" replace />
@@ -32,26 +34,30 @@ export function KlantDetail() {
     navigate('/klanten')
   }
 
-  const deleteButton = (
-    <button
-      onClick={() => setConfirmDelete(true)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '9px 14px',
-        background: 'transparent',
-        color: colors.negative,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 8,
-        fontSize: 14,
-        fontWeight: 500,
-        cursor: 'pointer',
-        flex: 'none',
-      }}
-    >
-      Verwijderen
-    </button>
+  const actionButtons = (
+    <div style={{ display: 'flex', gap: 10, flex: 'none' }}>
+      <SecondaryButton onClick={() => setEditing(true)}>Bewerken</SecondaryButton>
+      <button
+        onClick={() => setConfirmDelete(true)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '9px 14px',
+          background: 'transparent',
+          color: colors.negative,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 500,
+          cursor: 'pointer',
+        }}
+      >
+        Verwijderen
+      </button>
+    </div>
   )
+
+  const editModal = editing && <NewClientModal client={c} onClose={() => setEditing(false)} />
 
   const confirmDialog = confirmDelete && (
     <ConfirmDialog
@@ -173,7 +179,7 @@ export function KlantDetail() {
           <div style={{ fontSize: 13, color: colors.muted }}>
             {c.contact} · {c.plaats}
           </div>
-          {deleteButton}
+          {actionButtons}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11, marginBottom: 16 }}>
           <Card style={{ padding: 14 }}>
@@ -188,6 +194,7 @@ export function KlantDetail() {
         <div style={{ marginBottom: 16 }}>{projectRows}</div>
         {invoiceRows}
         {confirmDialog}
+        {editModal}
       </>
     )
   }
@@ -219,7 +226,7 @@ export function KlantDetail() {
             {c.contact} · {c.email} · {c.plaats}
           </p>
         </div>
-        {deleteButton}
+        {actionButtons}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 16 }}>
@@ -245,6 +252,7 @@ export function KlantDetail() {
         </div>
       </div>
       {confirmDialog}
+      {editModal}
     </>
   )
 }

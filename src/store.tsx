@@ -52,6 +52,7 @@ interface Store {
   getInvoice: (id: string) => Invoice | undefined
 
   addClient: (c: Omit<Client, 'id'>) => Promise<Client>
+  updateClient: (c: Client) => Promise<void>
   deleteClient: (id: string) => Promise<void>
   addProject: (p: Omit<Project, 'id'>) => Promise<Project>
   setProjectStatus: (id: string, status: ProjectStatus) => void
@@ -293,6 +294,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [userId],
   )
 
+  const updateClient = useCallback(async (c: Client) => {
+    await db.saveClient(c)
+    setClients((cs) => cs.map((x) => (x.id === c.id ? c : x)))
+  }, [])
+
   // The DB unlinks (klant_id -> null) rather than cascades on client delete,
   // so mirror that locally: drop the client, unlink any project/quote/invoice
   // that pointed at it instead of leaving them referencing a ghost id.
@@ -467,6 +473,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getQuote: (id) => quotes.find((q) => q.id === id),
       getInvoice: (id) => invoices.find((i) => i.id === id),
       addClient,
+      updateClient,
       deleteClient,
       addProject,
       setProjectStatus,
@@ -505,6 +512,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       quoteFilter,
       invoiceFilter,
       addClient,
+      updateClient,
       deleteClient,
       addProject,
       setProjectStatus,
