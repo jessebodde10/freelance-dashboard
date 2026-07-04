@@ -109,12 +109,25 @@ export function useAuth(): AuthState {
   return ctx
 }
 
-/** Gate for the app: redirects to /login when there is no session. */
-export function RequireAuth({ children }: { children: ReactNode }) {
+/** Gate for the app: redirects to /login when there is no session. On "/"
+ *  itself, an optional publicFallback (the marketing page) is shown instead
+ *  of redirecting, so logged-out visitors land on an explanation rather than
+ *  bouncing straight to the login form. Every other protected path keeps
+ *  redirecting to /login exactly as before. */
+export function RequireAuth({
+  children,
+  publicFallback,
+}: {
+  children: ReactNode
+  publicFallback?: ReactNode
+}) {
   const { ready, user } = useAuth()
   const location = useLocation()
   if (!ready) return <FullscreenMessage text="Laden…" />
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (!user) {
+    if (publicFallback && location.pathname === '/') return <>{publicFallback}</>
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
   return <>{children}</>
 }
 

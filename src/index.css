@@ -243,6 +243,40 @@ a:focus-visible,
   }
 }
 
+/* Marketing hero: headline/subhead/CTAs fade up on load, staggered per
+   element via the --fade-delay custom property. */
+.hero-fade-up {
+  opacity: 0;
+  animation: hero-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--fade-delay, 0s);
+}
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashboard-preview mini bar chart grows in once, staggered via --bar-delay. */
+.mini-bar-fill {
+  transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--bar-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .mini-bar-fill {
+    transition: none;
+  }
+}
+
 /* PDF-export: print only the live document preview, full page. */
 @media print {
   body {

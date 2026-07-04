@@ -6,6 +6,7 @@ import { Layout } from './components/Layout'
 import { SetupNeeded } from './screens/SetupNeeded'
 
 // Route screens are code-split so the initial load only ships the shell.
+const Marketing = lazy(() => import('./screens/Marketing').then((m) => ({ default: m.Marketing })))
 const Login = lazy(() => import('./screens/Login').then((m) => ({ default: m.Login })))
 const Register = lazy(() => import('./screens/Register').then((m) => ({ default: m.Register })))
 const Dashboard = lazy(() => import('./screens/Dashboard').then((m) => ({ default: m.Dashboard })))
@@ -37,7 +38,7 @@ export function App() {
 
       <Route
         element={
-          <RequireAuth>
+          <RequireAuth publicFallback={<Marketing />}>
             <Layout />
           </RequireAuth>
         }

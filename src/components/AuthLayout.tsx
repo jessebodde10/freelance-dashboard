@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { colors } from '../theme'
 import { BrandMark } from './icons'
 
@@ -27,13 +28,16 @@ export function AuthLayout({
       }}
     >
       <div style={{ width: '100%', maxWidth: wide ? 520 : 400 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 22 }}>
+        <Link
+          to="/"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 22, textDecoration: 'none' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <BrandMark />
-            <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em' }}>Freezo</span>
+            <span style={{ fontWeight: 600, fontSize: 18, letterSpacing: '-0.01em', color: colors.ink }}>Freezo</span>
           </div>
           <span style={{ fontSize: 13, color: colors.muted }}>Jouw freelance dashboard</span>
-        </div>
+        </Link>
         <div
           style={{
             background: colors.surface,
@@ -53,14 +57,14 @@ export function AuthLayout({
   )
 }
 
-const labelStyle: CSSProperties = {
+export const labelStyle: CSSProperties = {
   fontSize: 12.5,
   color: colors.muted,
   display: 'block',
   marginBottom: 5,
   fontWeight: 500,
 }
-const inputStyle: CSSProperties = {
+export const inputStyle: CSSProperties = {
   width: '100%',
   padding: '10px 12px',
   border: `1px solid ${colors.borderStrong}`,
