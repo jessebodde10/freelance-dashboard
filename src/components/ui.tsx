@@ -309,9 +309,9 @@ export function FilterChips({
   }
   const active: CSSProperties = {
     ...idle,
-    background: colors.ink,
+    background: accent.solid,
     color: '#fff',
-    border: `1px solid ${colors.ink}`,
+    border: `1px solid ${accent.solid}`,
   }
   return (
     <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>

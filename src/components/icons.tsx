@@ -1,4 +1,5 @@
 import type { SVGProps } from 'react'
+import { accent } from '../theme'
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number }
 
@@ -99,7 +100,7 @@ export const DownloadIcon = ({ size = 15, ...props }: IconProps) => (
   </svg>
 )
 
-// Small brand mark: rotated square inside a dark rounded tile.
+// Small brand mark: rotated square inside an indigo rounded tile.
 export function BrandMark({ size = 28 }: { size?: number }) {
   const inner = Math.round(size * 0.4)
   return (
@@ -108,7 +109,7 @@ export function BrandMark({ size = 28 }: { size?: number }) {
         width: size,
         height: size,
         borderRadius: size * 0.29,
-        background: '#1a1f36',
+        background: accent.solid,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
