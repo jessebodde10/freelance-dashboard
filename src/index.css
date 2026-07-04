@@ -143,6 +143,18 @@ a:focus-visible,
   background: var(--surface-2);
 }
 
+/* Revenue-chart bars: show the amount tooltip only on hover. */
+.chart-bar-tooltip {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  pointer-events: none;
+}
+.chart-bar:hover .chart-bar-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Spinner (autosave indicator) */
 .spin {
   animation: spin 0.7s linear infinite;

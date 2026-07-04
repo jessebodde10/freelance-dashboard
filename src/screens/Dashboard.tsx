@@ -93,6 +93,7 @@ function useDashboardData() {
         label: c.label,
         h: `${Math.round((c.v / maxV) * 100)}%`,
         color: i === months.length - 1 ? accent.solid : colors.border,
+        amount: euro0(c.v),
       })),
       openInvoices: openInv.map((i) => ({
         id: i.id,
@@ -274,6 +275,7 @@ function DesktopDashboard() {
             {d.chart.map((m) => (
               <div
                 key={m.label}
+                className="chart-bar"
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -282,8 +284,25 @@ function DesktopDashboard() {
                   gap: 8,
                   height: '100%',
                   justifyContent: 'flex-end',
+                  position: 'relative',
                 }}
               >
+                <div
+                  className="chart-bar-tooltip num"
+                  style={{
+                    position: 'absolute',
+                    bottom: `calc(${m.h} + 8px)`,
+                    background: colors.ink,
+                    color: '#fff',
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    padding: '4px 8px',
+                    borderRadius: 6,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {m.amount}
+                </div>
                 <div
                   style={{ width: '100%', borderRadius: '6px 6px 0 0', background: m.color, height: m.h, transition: 'height .3s' }}
                 />
