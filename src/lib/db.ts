@@ -341,6 +341,11 @@ export async function deleteInvoice(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function deleteClient(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('clients').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ---- expenses ----
 export async function insertExpense(userId: string, e: Omit<Expense, 'id'>): Promise<Expense> {
   const { data, error } = await requireSupabase()

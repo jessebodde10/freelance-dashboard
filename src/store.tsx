@@ -52,6 +52,7 @@ interface Store {
   getInvoice: (id: string) => Invoice | undefined
 
   addClient: (c: Omit<Client, 'id'>) => Promise<Client>
+  deleteClient: (id: string) => Promise<void>
   addProject: (p: Omit<Project, 'id'>) => Promise<Project>
   setProjectStatus: (id: string, status: ProjectStatus) => void
   addTimeEntry: (projectId: string, entry: Omit<TimeEntry, 'id'>) => void
@@ -292,6 +293,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [userId],
   )
 
+  // The DB unlinks (klant_id -> null) rather than cascades on client delete,
+  // so mirror that locally: drop the client, unlink any project/quote/invoice
+  // that pointed at it instead of leaving them referencing a ghost id.
+  const deleteClient = useCallback(async (id: string) => {
+    await db.deleteClient(id)
+    setClients((cs) => cs.filter((c) => c.id !== id))
+    setProjects((ps) => ps.map((p) => (p.klantId === id ? { ...p, klantId: '' } : p)))
+    setQuotes((qs) => qs.map((q) => (q.klantId === id ? { ...q, klantId: '' } : q)))
+    setInvoices((is) => is.map((i) => (i.klantId === id ? { ...i, klantId: '' } : i)))
+  }, [])
+
   const addProject = useCallback(
     async (p: Omit<Project, 'id'>) => {
       if (!userId) throw new Error('Niet ingelogd')
@@ -455,6 +467,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getQuote: (id) => quotes.find((q) => q.id === id),
       getInvoice: (id) => invoices.find((i) => i.id === id),
       addClient,
+      deleteClient,
       addProject,
       setProjectStatus,
       addTimeEntry,
@@ -492,6 +505,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       quoteFilter,
       invoiceFilter,
       addClient,
+      deleteClient,
       addProject,
       setProjectStatus,
       addTimeEntry,

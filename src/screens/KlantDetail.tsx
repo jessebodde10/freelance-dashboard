@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { dutchNum, euro, euro0, initials, subtotalOf, totalOf } from '../format'
 import { colors } from '../theme'
@@ -5,6 +6,7 @@ import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
 import { BackLink, Card } from '../components/ui'
 import { Pill } from '../components/Pill'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 const sectionH2 = { margin: 0, fontSize: 14.5, fontWeight: 600 } as const
 
@@ -12,8 +14,9 @@ export function KlantDetail() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { clients } = useStore()
+  const { clients, deleteClient } = useStore()
   const { invoicesOf, projectsOf, quotesOf } = useLookups()
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const c = clients.find((x) => x.id === id)
   if (!c) return <Navigate to="/klanten" replace />
@@ -23,6 +26,41 @@ export function KlantDetail() {
   const quo = quotesOf(c.id)
   const omzet = euro0(inv.filter((i) => i.status === 'betaald').reduce((s, i) => s + totalOf(i.lines), 0))
   const openstaand = euro0(inv.filter((i) => i.status !== 'betaald').reduce((s, i) => s + totalOf(i.lines), 0))
+
+  async function remove() {
+    await deleteClient(c!.id)
+    navigate('/klanten')
+  }
+
+  const deleteButton = (
+    <button
+      onClick={() => setConfirmDelete(true)}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '9px 14px',
+        background: 'transparent',
+        color: colors.negative,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: 500,
+        cursor: 'pointer',
+        flex: 'none',
+      }}
+    >
+      Verwijderen
+    </button>
+  )
+
+  const confirmDialog = confirmDelete && (
+    <ConfirmDialog
+      title="Klant verwijderen"
+      message={`Weet je zeker dat je “${c.bedrijf}” definitief wilt verwijderen? Gekoppelde opdrachten, offertes en facturen blijven bestaan, maar raken losgekoppeld van deze klant.`}
+      onConfirm={remove}
+      onClose={() => setConfirmDelete(false)}
+    />
+  )
 
   const projectRows = (
     <Card style={{ overflow: 'hidden' }}>
@@ -123,8 +161,19 @@ export function KlantDetail() {
     return (
       <>
         <BackLink label="Terug" onClick={() => navigate('/klanten')} />
-        <div style={{ fontSize: 13, color: colors.muted, marginBottom: 16 }}>
-          {c.contact} · {c.plaats}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontSize: 13, color: colors.muted }}>
+            {c.contact} · {c.plaats}
+          </div>
+          {deleteButton}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11, marginBottom: 16 }}>
           <Card style={{ padding: 14 }}>
@@ -138,6 +187,7 @@ export function KlantDetail() {
         </div>
         <div style={{ marginBottom: 16 }}>{projectRows}</div>
         {invoiceRows}
+        {confirmDialog}
       </>
     )
   }
@@ -169,6 +219,7 @@ export function KlantDetail() {
             {c.contact} · {c.email} · {c.plaats}
           </p>
         </div>
+        {deleteButton}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 16 }}>
@@ -193,6 +244,7 @@ export function KlantDetail() {
           {invoiceRows}
         </div>
       </div>
+      {confirmDialog}
     </>
   )
 }
