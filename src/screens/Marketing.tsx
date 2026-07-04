@@ -378,7 +378,7 @@ function FeatureCard({
 
 function Features({ isMobile }: { isMobile: boolean }) {
   return (
-    <section style={{ maxWidth: 1080, margin: '0 auto', padding: isMobile ? '48px 20px' : '80px 32px' }}>
+    <section style={{ maxWidth: 1080, margin: '0 auto', padding: isMobile ? '48px 20px' : '72px 32px' }}>
       <h2
         style={{
           textAlign: 'center',
