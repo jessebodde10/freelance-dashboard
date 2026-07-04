@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
+import { monthShort, parseShortDate } from '../data'
 import { euro } from '../format'
 import { colors } from '../theme'
 import { useStore } from '../store'
@@ -8,11 +9,22 @@ import { Card, FilterChips, PageHeader, PrimaryButton, SearchField } from '../co
 import { EmptyState } from '../components/EmptyState'
 import { ExpenseModal } from '../components/ExpenseModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
-import { EXPENSE_CATEGORIES, type Expense } from '../types'
-
-const filterOptions = [{ key: 'alle', label: 'Alle' }, ...EXPENSE_CATEGORIES.map((c) => ({ key: c, label: c }))]
+import type { Expense } from '../types'
 
 const GRID = '2fr 1.3fr 1fr 0.8fr 30px'
+
+// "2026-6" style key so months sort/compare naturally, newest first.
+function monthKeyOf(dateStr: string): string | null {
+  const d = parseShortDate(dateStr)
+  return d ? `${d.getFullYear()}-${d.getMonth()}` : null
+}
+
+function monthLabelOf(dateStr: string): string {
+  const d = parseShortDate(dateStr)
+  if (!d) return dateStr
+  const label = monthShort(d)
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)} ${d.getFullYear()}`
+}
 
 function TrashIcon() {
   return (
@@ -31,12 +43,22 @@ export function KostenList() {
   const [showNew, setShowNew] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Expense | null>(null)
 
+  const monthOptions = useMemo(() => {
+    const byKey = new Map<string, string>()
+    for (const e of expenses) {
+      const key = monthKeyOf(e.datum)
+      if (key && !byKey.has(key)) byKey.set(key, monthLabelOf(e.datum))
+    }
+    const sorted = [...byKey.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    return [{ key: 'alle', label: 'Alle' }, ...sorted.map(([key, label]) => ({ key, label }))]
+  }, [expenses])
+
   const term = search.trim().toLowerCase()
   const rows = expenses
-    .filter((e) => filter === 'alle' || e.categorie === filter)
+    .filter((e) => filter === 'alle' || monthKeyOf(e.datum) === filter)
     .filter((e) => !term || e.omschrijving.toLowerCase().includes(term))
 
-  const emptyMsg = term ? `Geen kostenposten gevonden voor “${search}”.` : 'Geen kostenposten in deze categorie.'
+  const emptyMsg = term ? `Geen kostenposten gevonden voor “${search}”.` : 'Geen kostenposten in deze maand.'
 
   const totaalExcl = rows.reduce((s, e) => s + e.bedrag, 0)
   const totaalIncl = rows.reduce((s, e) => s + e.bedrag * (1 + e.btw / 100), 0)
@@ -79,23 +101,24 @@ export function KostenList() {
   const header = (
     <>
       <PageHeader title="Kosten" actions={newBtn} />
-      <FilterChips options={filterOptions} value={filter} onChange={setFilter} />
+      <FilterChips options={monthOptions} value={filter} onChange={setFilter} />
       <SearchField value={search} onChange={setSearch} placeholder="Zoek op omschrijving" />
-      {rows.length > 0 && (
-        <Card style={{ padding: '14px 18px', marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 12.5, color: colors.muted }}>
-              {rows.length} {rows.length === 1 ? 'kostenpost' : 'kostenposten'} · totaal excl. BTW
-            </span>
-            <span className="num" style={{ fontWeight: 600, fontSize: 15 }}>{euro(totaalExcl)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}>
-            <span style={{ fontSize: 12, color: colors.subtle }}>Totaal incl. BTW</span>
-            <span className="num" style={{ fontSize: 12.5, color: colors.subtle }}>{euro(totaalIncl)}</span>
-          </div>
-        </Card>
-      )}
     </>
+  )
+
+  const totalsCard = rows.length > 0 && (
+    <Card style={{ padding: '14px 18px', marginTop: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontSize: 12.5, color: colors.muted }}>
+          {rows.length} {rows.length === 1 ? 'kostenpost' : 'kostenposten'} · totaal excl. BTW
+        </span>
+        <span className="num" style={{ fontWeight: 600, fontSize: 15 }}>{euro(totaalExcl)}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}>
+        <span style={{ fontSize: 12, color: colors.subtle }}>Totaal incl. BTW</span>
+        <span className="num" style={{ fontSize: 12.5, color: colors.subtle }}>{euro(totaalIncl)}</span>
+      </div>
+    </Card>
   )
 
   if (isMobile) {
@@ -128,6 +151,7 @@ export function KostenList() {
             <div style={{ color: colors.subtle, fontSize: 13, padding: '8px 2px' }}>{emptyMsg}</div>
           )}
         </div>
+        {totalsCard}
         {modals}
       </>
     )
@@ -191,6 +215,7 @@ export function KostenList() {
           </div>
         )}
       </Card>
+      {totalsCard}
       {modals}
     </>
   )
