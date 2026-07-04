@@ -55,6 +55,22 @@ export const FacturenIcon = (p: IconProps) => (
   </svg>
 )
 
+export const KostenIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4.5 2.5h9v13l-1.6-1-1.4 1-1.5-1-1.5 1-1.4-1-1.6 1z" />
+    <path d="M6.6 6h4.8M6.6 8.6h4.8M6.6 11.2h3" />
+  </svg>
+)
+
+export const BtwIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="9" cy="9" r="6.6" />
+    <path d="M6.6 11.4 11.4 6.6" />
+    <circle cx="7.3" cy="7.3" r="0.9" fill="currentColor" stroke="none" />
+    <circle cx="10.7" cy="10.7" r="0.9" fill="currentColor" stroke="none" />
+  </svg>
+)
+
 export const RevenueUpIcon = ({ size = 13, ...props }: IconProps) => (
   <svg
     width={size}

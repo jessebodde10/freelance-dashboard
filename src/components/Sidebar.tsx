@@ -9,9 +9,11 @@ import { openCommandPalette } from './CommandPalette'
 import { ProfileModal } from './ProfileModal'
 import {
   BrandMark,
+  BtwIcon,
   DashboardIcon,
   FacturenIcon,
   KlantenIcon,
+  KostenIcon,
   OffertesIcon,
   OpdrachtenIcon,
 } from './icons'
@@ -22,6 +24,8 @@ const items: { to: string; label: string; icon: ReactNode; end?: boolean }[] = [
   { to: '/klanten', label: 'Klanten', icon: <KlantenIcon /> },
   { to: '/offertes', label: 'Offertes', icon: <OffertesIcon /> },
   { to: '/facturen', label: 'Facturen', icon: <FacturenIcon /> },
+  { to: '/kosten', label: 'Kosten', icon: <KostenIcon /> },
+  { to: '/btw', label: 'BTW-overzicht', icon: <BtwIcon /> },
 ]
 
 const navBase: CSSProperties = {

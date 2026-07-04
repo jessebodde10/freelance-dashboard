@@ -40,9 +40,13 @@ export function FactuurEditor() {
     setDocNotitie,
     setInvoiceVerval,
     setInvoiceStatus,
+    setInvoiceHerhaling,
+    setInvoiceVolgendeFactuurdatum,
+    genereerHerhalingNu,
     deleteInvoice,
     saveState,
   } = useStore()
+  const [generating, setGenerating] = useState(false)
   const { clientById } = useLookups()
   const me = useIdentity()
 
@@ -131,6 +135,59 @@ export function FactuurEditor() {
           />
         </label>
       </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile || invoice.herhaling === 'geen' ? '1fr' : '1fr 1fr',
+          gap: 14,
+          marginBottom: 22,
+        }}
+      >
+        <label style={{ display: 'block' }}>
+          <span style={fieldLabel}>Herhaling</span>
+          <select
+            value={invoice.herhaling}
+            onChange={(e) => setInvoiceHerhaling(invoice.id, e.target.value as typeof invoice.herhaling)}
+            style={fieldInput}
+          >
+            <option value="geen">Geen (eenmalig)</option>
+            <option value="maandelijks">Maandelijks</option>
+            <option value="per_kwartaal">Per kwartaal</option>
+            <option value="jaarlijks">Jaarlijks</option>
+          </select>
+        </label>
+        {invoice.herhaling !== 'geen' && (
+          <label style={{ display: 'block' }}>
+            <span style={fieldLabel}>Volgende factuur op</span>
+            <input
+              value={invoice.volgendeFactuurdatum}
+              onChange={(e) => setInvoiceVolgendeFactuurdatum(invoice.id, e.target.value)}
+              style={fieldInput}
+            />
+          </label>
+        )}
+      </div>
+      {invoice.herhaling !== 'geen' && (
+        <div style={{ marginTop: -10, marginBottom: 22 }}>
+          <SecondaryButton
+            type="button"
+            disabled={generating}
+            onClick={async () => {
+              setGenerating(true)
+              try {
+                const newId = await genereerHerhalingNu(invoice.id)
+                celebrate('Nieuwe factuur aangemaakt')
+                navigate(`/facturen/${newId}`)
+              } finally {
+                setGenerating(false)
+              }
+            }}
+          >
+            {generating ? 'Bezig…' : 'Nu een nieuwe factuur aanmaken'}
+          </SecondaryButton>
+        </div>
+      )}
 
       <LineItemsEditor kind="invoice" docId={invoice.id} lines={invoice.lines} totalLabel="Te betalen" isMobile={isMobile} />
 

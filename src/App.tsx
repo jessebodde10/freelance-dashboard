@@ -26,6 +26,10 @@ const FacturenList = lazy(() => import('./screens/FacturenList').then((m) => ({ 
 const FactuurEditor = lazy(() =>
   import('./screens/FactuurEditor').then((m) => ({ default: m.FactuurEditor })),
 )
+const KostenList = lazy(() => import('./screens/KostenList').then((m) => ({ default: m.KostenList })))
+const BtwOverzicht = lazy(() =>
+  import('./screens/BtwOverzicht').then((m) => ({ default: m.BtwOverzicht })),
+)
 
 export function App() {
   if (!isSupabaseConfigured) return <SetupNeeded />
@@ -52,6 +56,8 @@ export function App() {
         <Route path="offertes/:id" element={<OfferteEditor />} />
         <Route path="facturen" element={<FacturenList />} />
         <Route path="facturen/:id" element={<FactuurEditor />} />
+        <Route path="kosten" element={<KostenList />} />
+        <Route path="btw" element={<BtwOverzicht />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

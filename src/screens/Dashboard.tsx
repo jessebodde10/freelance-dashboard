@@ -5,7 +5,7 @@ import { dutchNum, euro, euro0, subtotalOf, totalOf } from '../format'
 import { accent, colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import type { Invoice } from '../types'
+import type { Expense, Invoice } from '../types'
 import { Card, PrimaryButton } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { RevenueUpIcon } from '../components/icons'
@@ -39,8 +39,18 @@ function monthlyRevenue(invoices: Invoice[], count: number) {
   return buckets
 }
 
+// Sum of expenses booked in the current calendar month.
+function monthlyExpenses(expenses: Expense[]): number {
+  const now = new Date()
+  return expenses.reduce((s, e) => {
+    const d = parseShortDate(e.datum)
+    if (!d || d.getFullYear() !== now.getFullYear() || d.getMonth() !== now.getMonth()) return s
+    return s + e.bedrag
+  }, 0)
+}
+
 function useDashboardData() {
-  const { invoices, quotes, projects } = useStore()
+  const { invoices, quotes, projects, expenses } = useStore()
   const { clientName } = useLookups()
   const navigate = useNavigate()
 
@@ -57,6 +67,8 @@ function useDashboardData() {
     const omzetMaand = months[months.length - 1].v
     const omzetVorige = months[months.length - 2]?.v ?? 0
     const delta = omzetVorige > 0 ? Math.round(((omzetMaand - omzetVorige) / omzetVorige) * 1000) / 10 : null
+    const kostenMaand = monthlyExpenses(expenses)
+    const winstMaand = omzetMaand - kostenMaand
 
     const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
     const stripYear = (s: string) => s.replace(/\s\d{4}$/, '')
@@ -67,6 +79,9 @@ function useDashboardData() {
       hasRevenue: months.some((m) => m.v > 0),
       omzetMaand: euro0(omzetMaand),
       omzetDelta: delta === null ? null : `${delta >= 0 ? '+' : ''}${dutchNum(delta)}%`,
+      kostenMaand: euro0(kostenMaand),
+      winstMaand: euro0(winstMaand),
+      hasKosten: kostenMaand > 0,
       openstaandTotaal: euro0(openstaandTotaal),
       teLaatLabel: plural(teLaat.length, 'factuur te laat', 'facturen te laat'),
       actiefCount: String(active.length),
@@ -121,7 +136,7 @@ function useDashboardData() {
         })),
       ],
     }
-  }, [invoices, quotes, projects, clientName, navigate])
+  }, [invoices, quotes, projects, expenses, clientName, navigate])
 }
 
 const cardLabel = { fontSize: 13, color: colors.muted } as const
@@ -188,6 +203,11 @@ function DesktopDashboard() {
             >
               <RevenueUpIcon />
               {d.omzetDelta} t.o.v. vorige maand
+            </div>
+          )}
+          {d.hasKosten && (
+            <div style={{ marginTop: 6, fontSize: 12.5, color: colors.muted }}>
+              {d.kostenMaand} kosten · {d.winstMaand} winst
             </div>
           )}
         </Card>
@@ -418,6 +438,9 @@ function MobileDashboard() {
             <div style={{ fontSize: 11.5, color: colors.positive, fontWeight: 500, marginTop: 3 }}>
               {d.omzetDelta}
             </div>
+          )}
+          {d.hasKosten && (
+            <div style={{ fontSize: 11, color: colors.muted, marginTop: 3 }}>{d.winstMaand} winst</div>
           )}
         </Card>
         <Card style={{ padding: 14 }}>

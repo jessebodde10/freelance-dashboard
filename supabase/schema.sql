@@ -83,9 +83,25 @@ create table if not exists public.invoices (
   datum      text,
   notitie    text,
   lines      jsonb not null default '[]'::jsonb,
+  herhaling  text not null default 'geen',
+  volgende_factuurdatum text,
   created_at timestamptz not null default now()
 );
 alter table public.invoices add column if not exists notitie text;
+alter table public.invoices add column if not exists herhaling text not null default 'geen';
+alter table public.invoices add column if not exists volgende_factuurdatum text;
+
+-- ------------------------------------------------------------------ expenses
+create table if not exists public.expenses (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  omschrijving text not null,
+  bedrag      numeric not null default 0,
+  btw         numeric not null default 21,
+  categorie   text not null default 'Overig',
+  datum       text,
+  created_at  timestamptz not null default now()
+);
 
 -- ------------------------------------------------------- row level security
 alter table public.profiles enable row level security;
@@ -93,6 +109,7 @@ alter table public.clients  enable row level security;
 alter table public.projects enable row level security;
 alter table public.quotes   enable row level security;
 alter table public.invoices enable row level security;
+alter table public.expenses enable row level security;
 
 -- Profiles: a user may only read/write their own row.
 drop policy if exists "own profile" on public.profiles;
@@ -103,7 +120,7 @@ create policy "own profile" on public.profiles
 do $$
 declare t text;
 begin
-  foreach t in array array['clients','projects','quotes','invoices'] loop
+  foreach t in array array['clients','projects','quotes','invoices','expenses'] loop
     execute format('drop policy if exists "own rows" on public.%I;', t);
     execute format(
       'create policy "own rows" on public.%I for all

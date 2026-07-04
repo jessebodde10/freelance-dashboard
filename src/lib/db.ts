@@ -1,6 +1,8 @@
 import { requireSupabase } from './supabase'
 import type {
   Client,
+  Expense,
+  ExpenseCategory,
   Invoice,
   LineItem,
   Profile,
@@ -10,7 +12,9 @@ import type {
   Quote,
   QuoteStatus,
   InvoiceStatus,
+  RecurrenceInterval,
   TimeEntry,
+  VatRate,
 } from '../types'
 
 // ---- row shapes (snake_case, as stored in Postgres) ----
@@ -53,6 +57,16 @@ interface InvoiceRow {
   datum: string | null
   notitie: string | null
   lines: LineItem[] | null
+  herhaling: string | null
+  volgende_factuurdatum: string | null
+}
+interface ExpenseRow {
+  id: string
+  omschrijving: string
+  bedrag: number
+  btw: number
+  categorie: string
+  datum: string | null
 }
 
 // ---- mappers ----
@@ -95,6 +109,16 @@ const toInvoice = (r: InvoiceRow): Invoice => ({
   datum: r.datum ?? '',
   notitie: r.notitie ?? '',
   lines: r.lines ?? [],
+  herhaling: (r.herhaling ?? 'geen') as RecurrenceInterval,
+  volgendeFactuurdatum: r.volgende_factuurdatum ?? '',
+})
+const toExpense = (r: ExpenseRow): Expense => ({
+  id: r.id,
+  omschrijving: r.omschrijving,
+  bedrag: Number(r.bedrag),
+  btw: Number(r.btw) as VatRate,
+  categorie: r.categorie as ExpenseCategory,
+  datum: r.datum ?? '',
 })
 
 // ---- profile ----
@@ -149,22 +173,25 @@ export interface UserData {
   projects: Project[]
   quotes: Quote[]
   invoices: Invoice[]
+  expenses: Expense[]
 }
 
 export async function fetchUserData(): Promise<UserData> {
   const sb = requireSupabase()
-  const [clients, projects, quotes, invoices] = await Promise.all([
+  const [clients, projects, quotes, invoices, expenses] = await Promise.all([
     sb.from('clients').select('*').order('created_at', { ascending: true }),
     sb.from('projects').select('*').order('created_at', { ascending: true }),
     sb.from('quotes').select('*').order('created_at', { ascending: false }),
     sb.from('invoices').select('*').order('created_at', { ascending: false }),
+    sb.from('expenses').select('*').order('created_at', { ascending: false }),
   ])
-  for (const r of [clients, projects, quotes, invoices]) if (r.error) throw r.error
+  for (const r of [clients, projects, quotes, invoices, expenses]) if (r.error) throw r.error
   return {
     clients: (clients.data as ClientRow[]).map(toClient),
     projects: (projects.data as ProjectRow[]).map(toProject),
     quotes: (quotes.data as QuoteRow[]).map(toQuote),
     invoices: (invoices.data as InvoiceRow[]).map(toInvoice),
+    expenses: (expenses.data as ExpenseRow[]).map(toExpense),
   }
 }
 
@@ -262,6 +289,8 @@ export async function insertInvoice(
       datum: inv.datum,
       notitie: inv.notitie,
       lines: inv.lines,
+      herhaling: inv.herhaling,
+      volgende_factuurdatum: inv.volgendeFactuurdatum || null,
     })
     .select('*')
     .single()
@@ -294,6 +323,8 @@ export async function saveInvoice(inv: Invoice): Promise<void> {
       verval: inv.verval,
       notitie: inv.notitie,
       lines: inv.lines,
+      herhaling: inv.herhaling,
+      volgende_factuurdatum: inv.volgendeFactuurdatum || null,
     })
     .eq('id', inv.id)
   if (error) throw error
@@ -307,5 +338,42 @@ export async function deleteQuote(id: string): Promise<void> {
 
 export async function deleteInvoice(id: string): Promise<void> {
   const { error } = await requireSupabase().from('invoices').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ---- expenses ----
+export async function insertExpense(userId: string, e: Omit<Expense, 'id'>): Promise<Expense> {
+  const { data, error } = await requireSupabase()
+    .from('expenses')
+    .insert({
+      user_id: userId,
+      omschrijving: e.omschrijving,
+      bedrag: e.bedrag,
+      btw: e.btw,
+      categorie: e.categorie,
+      datum: e.datum,
+    })
+    .select('*')
+    .single()
+  if (error) throw error
+  return toExpense(data as ExpenseRow)
+}
+
+export async function saveExpense(e: Expense): Promise<void> {
+  const { error } = await requireSupabase()
+    .from('expenses')
+    .update({
+      omschrijving: e.omschrijving,
+      bedrag: e.bedrag,
+      btw: e.btw,
+      categorie: e.categorie,
+      datum: e.datum,
+    })
+    .eq('id', e.id)
+  if (error) throw error
+}
+
+export async function deleteExpense(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('expenses').delete().eq('id', id)
   if (error) throw error
 }

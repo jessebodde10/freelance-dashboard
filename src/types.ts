@@ -11,6 +11,28 @@ export type InvoiceStatus = 'open' | 'betaald' | 'te laat'
 
 export type VatRate = 21 | 9 | 0
 
+export type ExpenseCategory =
+  | 'Software & abonnementen'
+  | 'Reiskosten'
+  | 'Kantoor & benodigdheden'
+  | 'Marketing'
+  | 'Verzekeringen'
+  | 'Coworking & huur'
+  | 'Overig'
+
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  'Software & abonnementen',
+  'Reiskosten',
+  'Kantoor & benodigdheden',
+  'Marketing',
+  'Verzekeringen',
+  'Coworking & huur',
+  'Overig',
+]
+
+/** Recurring-invoice interval; 'geen' means the invoice is a one-off. */
+export type RecurrenceInterval = 'geen' | 'maandelijks' | 'per_kwartaal' | 'jaarlijks'
+
 export interface Profile {
   id: string
   email: string
@@ -87,6 +109,17 @@ export interface Invoice {
   datum: string
   notitie: string
   lines: LineItem[]
+  herhaling: RecurrenceInterval
+  volgendeFactuurdatum: string
+}
+
+export interface Expense {
+  id: string
+  omschrijving: string
+  bedrag: number
+  btw: VatRate
+  categorie: ExpenseCategory
+  datum: string
 }
 
 export interface ChartPoint {

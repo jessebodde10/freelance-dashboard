@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import { parseShortDate } from '../data'
 import { euro, totalOf } from '../format'
 import { colors } from '../theme'
 import { useLookups, useStore } from '../store'
 import type { LayoutContext } from '../components/Layout'
-import { Card, FilterChips, PageHeader, PrimaryButton, SearchField } from '../components/ui'
+import { Card, FilterChips, PageHeader, PrimaryButton, SecondaryButton, SearchField } from '../components/ui'
 import { Pill } from '../components/Pill'
 import { EmptyState } from '../components/EmptyState'
+import { celebrate } from '../components/Celebration'
 
 const filterOptions = [
   { key: 'alle', label: 'Alle' },
@@ -20,9 +22,28 @@ const GRID = '1.1fr 1.8fr 1fr 1.1fr 1fr'
 export function FacturenList() {
   const { isMobile } = useOutletContext<LayoutContext>()
   const navigate = useNavigate()
-  const { invoices, invoiceFilter, setInvoiceFilter, createDraftInvoice } = useStore()
+  const { invoices, invoiceFilter, setInvoiceFilter, createDraftInvoice, genereerHerhalingNu } = useStore()
   const { clientName } = useLookups()
   const [search, setSearch] = useState('')
+  const [generatingId, setGeneratingId] = useState<string | null>(null)
+
+  const today = new Date()
+  const dueRecurring = invoices.filter((i) => {
+    if (i.herhaling === 'geen' || !i.volgendeFactuurdatum) return false
+    const d = parseShortDate(i.volgendeFactuurdatum)
+    return d !== null && d <= today
+  })
+
+  async function generateNow(id: string) {
+    setGeneratingId(id)
+    try {
+      const newId = await genereerHerhalingNu(id)
+      celebrate('Nieuwe factuur aangemaakt')
+      navigate(`/facturen/${newId}`)
+    } finally {
+      setGeneratingId(null)
+    }
+  }
 
   const term = search.trim().toLowerCase()
   const rows = invoices
@@ -59,8 +80,33 @@ export function FacturenList() {
     )
   }
 
+  const recurringBanner = dueRecurring.length > 0 && (
+    <Card style={{ padding: 16, marginBottom: 16, borderColor: colors.borderStrong }}>
+      <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 10 }}>
+        {dueRecurring.length} {dueRecurring.length === 1 ? 'terugkerende factuur staat' : 'terugkerende facturen staan'} klaar
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {dueRecurring.map((i) => (
+          <div key={i.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <span style={{ fontSize: 13.5 }}>
+              <span className="num" style={{ fontWeight: 500 }}>{i.nr}</span> — {clientName(i.klantId)}
+            </span>
+            <SecondaryButton
+              style={{ padding: '6px 12px', fontSize: 13 }}
+              disabled={generatingId === i.id}
+              onClick={() => generateNow(i.id)}
+            >
+              {generatingId === i.id ? 'Bezig…' : 'Nu aanmaken'}
+            </SecondaryButton>
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+
   const header = (
     <>
+      {recurringBanner}
       <PageHeader title="Facturen" actions={newBtn} />
       <FilterChips options={filterOptions} value={invoiceFilter} onChange={setInvoiceFilter} />
       <SearchField value={search} onChange={setSearch} placeholder="Zoek op nummer of klant" />

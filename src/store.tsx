@@ -9,11 +9,12 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from './auth'
-import { datePlusDays, shortDate } from './data'
+import { advanceDate, datePlusDays, shortDate } from './data'
 import * as db from './lib/db'
 import { debounce, type Debounced } from './lib/debounce'
 import type {
   Client,
+  Expense,
   Invoice,
   InvoiceStatus,
   LineItem,
@@ -21,6 +22,7 @@ import type {
   ProjectStatus,
   Quote,
   QuoteStatus,
+  RecurrenceInterval,
   TimeEntry,
   VatRate,
 } from './types'
@@ -37,6 +39,7 @@ interface Store {
   projects: Project[]
   quotes: Quote[]
   invoices: Invoice[]
+  expenses: Expense[]
 
   projectFilter: string
   setProjectFilter: (v: string) => void
@@ -69,11 +72,18 @@ interface Store {
   setInvoiceVerval: (docId: string, value: string) => void
   setQuoteStatus: (docId: string, status: QuoteStatus) => void
   setInvoiceStatus: (docId: string, status: InvoiceStatus) => void
+  setInvoiceHerhaling: (docId: string, interval: RecurrenceInterval) => void
+  setInvoiceVolgendeFactuurdatum: (docId: string, value: string) => void
+  genereerHerhalingNu: (docId: string) => Promise<string>
 
   createDraftQuote: () => Promise<string>
   createDraftInvoice: () => Promise<string>
   deleteQuote: (id: string) => Promise<void>
   deleteInvoice: (id: string) => Promise<void>
+
+  addExpense: (e: Omit<Expense, 'id'>) => Promise<Expense>
+  updateExpense: (e: Expense) => Promise<void>
+  removeExpense: (id: string) => Promise<void>
 }
 
 const StoreContext = createContext<Store | null>(null)
@@ -116,6 +126,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([])
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [expenses, setExpenses] = useState<Expense[]>([])
 
   const [projectFilter, setProjectFilter] = useState('alle')
   const [quoteFilter, setQuoteFilter] = useState('alle')
@@ -136,6 +147,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setProjects([])
       setQuotes([])
       setInvoices([])
+      setExpenses([])
       return
     }
     let cancelled = false
@@ -148,6 +160,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setProjects(d.projects)
         setQuotes(d.quotes)
         setInvoices(d.invoices)
+        setExpenses(d.expenses)
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Laden mislukt')
@@ -255,6 +268,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (docId: string, status: InvoiceStatus) => editInvoice(docId, (i) => ({ ...i, status })),
     [editInvoice],
   )
+  const setInvoiceHerhaling = useCallback(
+    (docId: string, interval: RecurrenceInterval) =>
+      editInvoice(docId, (i) => ({
+        ...i,
+        herhaling: interval,
+        volgendeFactuurdatum: interval === 'geen' ? '' : advanceDate(i.datum, interval),
+      })),
+    [editInvoice],
+  )
+  const setInvoiceVolgendeFactuurdatum = useCallback(
+    (docId: string, value: string) => editInvoice(docId, (i) => ({ ...i, volgendeFactuurdatum: value })),
+    [editInvoice],
+  )
 
   const addClient = useCallback(
     async (c: Omit<Client, 'id'>) => {
@@ -353,11 +379,62 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       datum: shortDate(),
       notitie: '',
       lines: [blankLine()],
+      herhaling: 'geen',
+      volgendeFactuurdatum: '',
     }
     const created = await db.insertInvoice(userId, draft)
     setInvoices((is) => [created, ...is])
     return created.id
   }, [userId, clients])
+
+  // Generates the next occurrence of a recurring invoice (fresh nr/datum/
+  // verval, same client+lines+notitie) and advances the template's own
+  // volgendeFactuurdatum so the same invoice keeps tracking what's next.
+  const genereerHerhalingNu = useCallback(
+    async (docId: string) => {
+      if (!userId) throw new Error('Niet ingelogd')
+      const template = invoicesRef.current.find((i) => i.id === docId)
+      if (!template) throw new Error('Factuur niet gevonden')
+      const draft: Omit<Invoice, 'id'> = {
+        nr: nextNr('', invoicesRef.current.map((i) => i.nr)),
+        klantId: template.klantId,
+        status: 'open',
+        verval: datePlusDays(14),
+        datum: shortDate(),
+        notitie: template.notitie,
+        lines: template.lines.map((l) => ({ ...l, id: Date.now() + Math.floor(Math.random() * 1000) })),
+        herhaling: 'geen',
+        volgendeFactuurdatum: '',
+      }
+      const created = await db.insertInvoice(userId, draft)
+      setInvoices((is) => [created, ...is])
+      if (template.herhaling !== 'geen') {
+        setInvoiceVolgendeFactuurdatum(docId, advanceDate(template.volgendeFactuurdatum, template.herhaling))
+      }
+      return created.id
+    },
+    [userId, setInvoiceVolgendeFactuurdatum],
+  )
+
+  const addExpense = useCallback(
+    async (e: Omit<Expense, 'id'>) => {
+      if (!userId) throw new Error('Niet ingelogd')
+      const created = await db.insertExpense(userId, e)
+      setExpenses((es) => [created, ...es])
+      return created
+    },
+    [userId],
+  )
+
+  const updateExpense = useCallback(async (e: Expense) => {
+    await db.saveExpense(e)
+    setExpenses((es) => es.map((x) => (x.id === e.id ? e : x)))
+  }, [])
+
+  const removeExpense = useCallback(async (id: string) => {
+    await db.deleteExpense(id)
+    setExpenses((es) => es.filter((e) => e.id !== id))
+  }, [])
 
   const value = useMemo<Store>(
     () => ({
@@ -368,6 +445,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       projects,
       quotes,
       invoices,
+      expenses,
       projectFilter,
       setProjectFilter,
       quoteFilter,
@@ -390,10 +468,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setInvoiceVerval,
       setQuoteStatus,
       setInvoiceStatus,
+      setInvoiceHerhaling,
+      setInvoiceVolgendeFactuurdatum,
+      genereerHerhalingNu,
       createDraftQuote,
       createDraftInvoice,
       deleteQuote,
       deleteInvoice,
+      addExpense,
+      updateExpense,
+      removeExpense,
     }),
     [
       loading,
@@ -403,6 +487,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       projects,
       quotes,
       invoices,
+      expenses,
       projectFilter,
       quoteFilter,
       invoiceFilter,
@@ -420,10 +505,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setInvoiceVerval,
       setQuoteStatus,
       setInvoiceStatus,
+      setInvoiceHerhaling,
+      setInvoiceVolgendeFactuurdatum,
+      genereerHerhalingNu,
       createDraftQuote,
       createDraftInvoice,
       deleteQuote,
       deleteInvoice,
+      addExpense,
+      updateExpense,
+      removeExpense,
     ],
   )
 

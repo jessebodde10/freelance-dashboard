@@ -2,9 +2,11 @@ import { useEffect, type CSSProperties } from 'react'
 import { NavLink } from 'react-router-dom'
 import { accent, colors } from '../theme'
 import {
+  BtwIcon,
   DashboardIcon,
   FacturenIcon,
   KlantenIcon,
+  KostenIcon,
   OffertesIcon,
   OpdrachtenIcon,
 } from './icons'
@@ -15,6 +17,8 @@ const tabs = [
   { to: '/klanten', label: 'Klanten', Icon: KlantenIcon },
   { to: '/offertes', label: 'Offertes', Icon: OffertesIcon },
   { to: '/facturen', label: 'Facturen', Icon: FacturenIcon },
+  { to: '/kosten', label: 'Kosten', Icon: KostenIcon },
+  { to: '/btw', label: 'BTW-overzicht', Icon: BtwIcon },
 ]
 
 const DRAWER_WIDTH = 232

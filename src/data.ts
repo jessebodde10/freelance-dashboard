@@ -38,3 +38,45 @@ export function parseShortDate(s: string): Date | null {
 /** Short month labels, exported for the revenue chart. */
 export const monthShort = (d: Date): string => MONTHS_SHORT[d.getMonth()]
 
+/** 1-4, the calendar quarter a date falls in. */
+export function quarterOf(d: Date): number {
+  return Math.floor(d.getMonth() / 3) + 1
+}
+
+/** "Q2 2026" label for the BTW-overview quarter picker. */
+export function quarterLabel(year: number, q: number): string {
+  return `Q${q} ${year}`
+}
+
+/** True when a date string (or its parsed date) falls in the given quarter. */
+export function inQuarter(dateStr: string, year: number, q: number): boolean {
+  const d = parseShortDate(dateStr)
+  if (!d) return false
+  return d.getFullYear() === year && quarterOf(d) === q
+}
+
+/** Step a {year, quarter} pair forward or backward by one quarter. */
+export function shiftQuarter(year: number, q: number, delta: number): { year: number; q: number } {
+  const total = year * 4 + (q - 1) + delta
+  return { year: Math.floor(total / 4), q: (((total % 4) + 4) % 4) + 1 }
+}
+
+const RECURRENCE_MONTHS: Record<'maandelijks' | 'per_kwartaal' | 'jaarlijks', number> = {
+  maandelijks: 1,
+  per_kwartaal: 3,
+  jaarlijks: 12,
+}
+
+/**
+ * Advances a short Dutch date by a recurring-invoice interval. Falls back to
+ * today when the source date can't be parsed, so a broken/empty date never
+ * blocks the recurrence from advancing.
+ */
+export function advanceDate(dateStr: string, interval: 'maandelijks' | 'per_kwartaal' | 'jaarlijks'): string {
+  const from = parseShortDate(dateStr) ?? new Date()
+  const months = RECURRENCE_MONTHS[interval]
+  const d = new Date(from)
+  d.setMonth(d.getMonth() + months)
+  return shortDate(d)
+}
+
