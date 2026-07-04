@@ -38,6 +38,9 @@ export function KostenList() {
 
   const emptyMsg = term ? `Geen kostenposten gevonden voor “${search}”.` : 'Geen kostenposten in deze categorie.'
 
+  const totaalExcl = rows.reduce((s, e) => s + e.bedrag, 0)
+  const totaalIncl = rows.reduce((s, e) => s + e.bedrag * (1 + e.btw / 100), 0)
+
   const newBtn = (
     <PrimaryButton onClick={() => setShowNew(true)}>
       <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Nieuwe kostenpost
@@ -78,6 +81,20 @@ export function KostenList() {
       <PageHeader title="Kosten" actions={newBtn} />
       <FilterChips options={filterOptions} value={filter} onChange={setFilter} />
       <SearchField value={search} onChange={setSearch} placeholder="Zoek op omschrijving" />
+      {rows.length > 0 && (
+        <Card style={{ padding: '14px 18px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 12.5, color: colors.muted }}>
+              {rows.length} {rows.length === 1 ? 'kostenpost' : 'kostenposten'} · totaal excl. BTW
+            </span>
+            <span className="num" style={{ fontWeight: 600, fontSize: 15 }}>{euro(totaalExcl)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}>
+            <span style={{ fontSize: 12, color: colors.subtle }}>Totaal incl. BTW</span>
+            <span className="num" style={{ fontSize: 12.5, color: colors.subtle }}>{euro(totaalIncl)}</span>
+          </div>
+        </Card>
+      )}
     </>
   )
 
