@@ -757,31 +757,30 @@ export function Marketing() {
   const isMobile = useIsMobile()
   return (
     <div style={{ background: colors.surface, minHeight: '100vh', color: colors.ink }}>
-      <div style={{ background: colors.surface, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ borderBottom: `1px solid ${colors.border}` }}>
         <MarketingHeader isMobile={isMobile} />
       </div>
 
-      <div style={{ background: colors.appBg }}>
-        <Hero isMobile={isMobile} />
-        <DashboardPreview isMobile={isMobile} />
-      </div>
+      <Hero isMobile={isMobile} />
+      <DashboardPreview isMobile={isMobile} />
 
-      <div style={{ background: colors.surface }}>
+      <div style={{ borderTop: `1px solid ${colors.border}` }}>
         <HowItWorks isMobile={isMobile} />
       </div>
 
-      <div style={{ background: colors.appBg }}>
+      <div style={{ borderTop: `1px solid ${colors.border}` }}>
         <Features isMobile={isMobile} />
         <PrivacyTrust isMobile={isMobile} />
       </div>
 
-      <div style={{ background: colors.surface }}>
+      <div style={{ borderTop: `1px solid ${colors.border}` }}>
         <Faq isMobile={isMobile} />
       </div>
 
+      {/* Sole colour highlight on an otherwise single-background page. */}
       <ClosingCTA isMobile={isMobile} />
 
-      <div style={{ background: colors.surface, borderTop: `1px solid ${colors.border}` }}>
+      <div style={{ borderTop: `1px solid ${colors.border}` }}>
         <MarketingFooter />
       </div>
     </div>
