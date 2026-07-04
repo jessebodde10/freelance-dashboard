@@ -756,16 +756,34 @@ function MarketingFooter() {
 export function Marketing() {
   const isMobile = useIsMobile()
   return (
-    <div style={{ background: colors.appBg, minHeight: '100vh', color: colors.ink }}>
-      <MarketingHeader isMobile={isMobile} />
-      <Hero isMobile={isMobile} />
-      <DashboardPreview isMobile={isMobile} />
-      <HowItWorks isMobile={isMobile} />
-      <Features isMobile={isMobile} />
-      <PrivacyTrust isMobile={isMobile} />
-      <Faq isMobile={isMobile} />
+    <div style={{ background: colors.surface, minHeight: '100vh', color: colors.ink }}>
+      <div style={{ background: colors.surface, borderBottom: `1px solid ${colors.border}` }}>
+        <MarketingHeader isMobile={isMobile} />
+      </div>
+
+      <div style={{ background: colors.appBg }}>
+        <Hero isMobile={isMobile} />
+        <DashboardPreview isMobile={isMobile} />
+      </div>
+
+      <div style={{ background: colors.surface }}>
+        <HowItWorks isMobile={isMobile} />
+      </div>
+
+      <div style={{ background: colors.appBg }}>
+        <Features isMobile={isMobile} />
+        <PrivacyTrust isMobile={isMobile} />
+      </div>
+
+      <div style={{ background: colors.surface }}>
+        <Faq isMobile={isMobile} />
+      </div>
+
       <ClosingCTA isMobile={isMobile} />
-      <MarketingFooter />
+
+      <div style={{ background: colors.surface, borderTop: `1px solid ${colors.border}` }}>
+        <MarketingFooter />
+      </div>
     </div>
   )
 }
