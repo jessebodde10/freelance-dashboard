@@ -119,18 +119,6 @@ function Hero({ isMobile }: { isMobile: boolean }) {
         className="hero-fade-up"
         style={{
           ...fadeStyle(0),
-          fontSize: 13,
-          fontWeight: 600,
-          color: colors.subtle,
-          marginBottom: 10,
-        }}
-      >
-        Jouw freelance dashboard
-      </div>
-      <div
-        className="hero-fade-up"
-        style={{
-          ...fadeStyle(0.08),
           display: 'inline-block',
           fontSize: 13,
           fontWeight: 600,
@@ -141,12 +129,12 @@ function Hero({ isMobile }: { isMobile: boolean }) {
           marginBottom: 20,
         }}
       >
-        Voor zelfstandig ondernemers
+        Jouw freelance dashboard
       </div>
       <h1
         className="hero-fade-up"
         style={{
-          ...fadeStyle(0.16),
+          ...fadeStyle(0.08),
           margin: 0,
           fontSize: isMobile ? 34 : 58,
           fontWeight: 700,
@@ -162,7 +150,7 @@ function Hero({ isMobile }: { isMobile: boolean }) {
       <p
         className="hero-fade-up"
         style={{
-          ...fadeStyle(0.24),
+          ...fadeStyle(0.16),
           margin: isMobile ? '18px auto 0' : '22px auto 0',
           maxWidth: 560,
           fontSize: isMobile ? 15.5 : 18,
@@ -177,7 +165,7 @@ function Hero({ isMobile }: { isMobile: boolean }) {
       <div
         className="hero-fade-up"
         style={{
-          ...fadeStyle(0.32),
+          ...fadeStyle(0.24),
           display: 'flex',
           justifyContent: 'center',
           gap: 12,
