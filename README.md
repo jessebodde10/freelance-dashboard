@@ -41,21 +41,27 @@ npm run typecheck  # types only
 ## Online zetten (deploy)
 
 Dit is een statische Vite-SPA, dus elke statische host werkt. Het project staat
-in de submap `app/`, dus zet de **root/base directory op `app`**.
+in de repo-root (geen submap).
 
 **Vercel (aanbevolen)**
 1. vercel.com → New Project → importeer de GitHub-repo.
-2. **Root Directory: `app`** · Framework: Vite · Build: `npm run build` · Output: `dist`.
+2. Framework: Vite · Build: `npm run build` · Output: `dist` (standaard, geen Root Directory nodig).
 3. Environment Variables: `VITE_SUPABASE_URL` en `VITE_SUPABASE_ANON_KEY`.
 4. Deploy. `vercel.json` regelt de SPA-routing (alles → `index.html`).
 
 **Netlify (alternatief)**
-- Base directory: `app` · Build: `npm run build` · Publish: `app/dist`.
+- Build: `npm run build` · Publish: `dist`.
 - Env vars idem. `public/_redirects` regelt de SPA-routing.
 
+**Eigen domein koppelen**
+- Vercel: Project → Settings → Domains → domein toevoegen → volg de DNS-instructies
+  (meestal een A-record naar `76.76.21.21` of een CNAME naar `cname.vercel-dns.com`,
+  in te stellen bij je domeinregistrar). Vercel geeft automatisch een gratis SSL-certificaat uit.
+- Netlify: Site settings → Domain management → domein toevoegen, DNS-instructies idem.
+
 **Daarna in Supabase** (Authentication → URL Configuration):
-- Zet **Site URL** op je live-URL (bv. `https://kompas.vercel.app`).
-- Voeg diezelfde URL toe aan **Redirect URLs** (nodig als e-mailbevestiging aanstaat).
+- Zet **Site URL** op je eigen domein (bv. `https://freezo.nl`).
+- Voeg diezelfde URL toe aan **Redirect URLs** (nodig voor e-mailbevestiging/wachtwoord-reset).
 
 De keys staan alleen in de host-env — nooit in git (`.env` is genegeerd). De
 anon key is bedoeld om publiek in de frontend te staan; RLS beveiligt de data.
